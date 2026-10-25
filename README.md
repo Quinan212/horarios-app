@@ -1,0 +1,27 @@
+# Mapa de horarios — Historia 2026
+
+Aplicación web estática para comparar las ocho comisiones del Profesorado de Educación Secundaria en Historia del Profesorado Superior de Ciencias Sociales, Concordia (Entre Ríos).
+
+## Funciones
+
+- Grilla de lunes a viernes, 18:30–22:20, con franjas y recreos.
+- Cuatro años, dos comisiones por año; filtros de año, comisión y búsqueda.
+- Resaltado de franjas donde coinciden varias materias seleccionadas.
+- Vista semanal / vista de lista.
+- Edición y adición de materias con almacenamiento en el navegador.
+- Exportación de horarios en JSON.
+- Modo claro/oscuro, diseño responsive, sin dependencias externas.
+
+## Uso local
+
+Abrir `index.html` en cualquier navegador moderno. Para instalar como PWA o compartirla, usar un servidor HTTPS (GitHub Pages / Vercel / Netlify).
+
+## Datos y limitaciones
+
+Se transcribieron los horarios de la planilla **HISTORIA 2026 Horarios.xlsx** (modificada 19/10/2026). Los nombres de docentes fueron omitidos a propósito. Se conservaron las denominaciones de las materias y las asignaciones horarias que aparecen en la planilla, incluyendo posibles inconsistencias de origen (por ejemplo, Práctica Docente II en primer año y el número de Contemporáneos en cuarto). La planilla contiene celdas vacías y rótulos sueltos que no se interpretaron como nuevas clases. Verificar cualquier decisión institucional con Secretaría Académica.
+
+Los cambios son locales al navegador y no se sincronizan entre dispositivos; la exportación permite respaldarlos.
+
+## Diseño
+
+Se utilizaron recomendaciones visuales de UI/UX Pro Max Skill 2.15.0 aportada para este proyecto. No se distribuye la skill dentro de la app.
