@@ -35,22 +35,41 @@
 .module-timeline .event small{font-size:10px;line-height:1.3}
 .module-cell .empty-slot{min-height:186px}
 @media(max-width:750px){.module-cell:not(.module-time){padding:7px;min-height:202px}.module-timeline{height:188px}}
+
+/* Divisiones independientes por año */
+.toolbar-top{align-items:center}
+.division-help{margin:7px 0 0;color:var(--sub);font-size:12px;line-height:1.5}
+.division-actions{display:flex;gap:7px;flex-wrap:wrap}
+.year-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;width:100%}
+.year-group{min-width:0;border:1px solid var(--border);border-radius:13px;background:var(--soft);padding:10px}
+.year-group-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.year-heading{display:flex;align-items:center;gap:8px;min-height:30px;background:none;border:0;color:var(--ink);padding:3px 4px;text-align:left;font-size:13px;font-weight:600}
+.year-heading.off{opacity:.55}
+.year-heading .dot{width:9px;height:9px;flex:none}
+.division-options{display:grid;grid-template-columns:minmax(0,1fr);gap:7px}
+.division-row{display:flex;min-width:0;gap:5px}
+.division-toggle{flex:1;min-width:0;min-height:38px;border:1px solid var(--border);border-radius:9px;padding:6px 7px;background:var(--panel);color:var(--sub);font-size:12px;text-align:left;white-space:normal}
+.division-toggle.active{border-color:var(--color);background:color-mix(in srgb,var(--color) 12%,var(--panel));color:var(--ink);font-weight:600;box-shadow:inset 3px 0 var(--color)}
+.division-toggle:hover,.division-solo:hover{background:var(--hover);color:var(--ink)}
+.division-solo{min-width:36px;padding:4px 5px;min-height:38px;border:1px solid var(--border);border-radius:9px;color:var(--sub);font-size:10px;background:var(--panel)}
+@media(max-width:950px){.year-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:460px){.year-group{padding:8px}.division-toggle{font-size:11px;padding:6px}.division-solo{min-width:32px;font-size:10px}.division-actions{width:100%}.division-actions button{flex:1}.year-filters{gap:7px}}
 </style>
 </head>
 <body>
 <div class="app">
 <header class="head"><div><div class="brand"><span class="brandmark" aria-hidden="true"><i></i><i></i><i></i><i></i></span> PSCS · Profesorado de Historia <span style="opacity:.35">/</span> Ciclo 2026</div><h1>Mapa de horarios<span style="color:var(--accent)">.</span></h1><p class="subtitle">Una mirada completa a las cursadas de los cuatro años. Compará comisiones, identificá coincidencias y ajustá tus horarios.</p></div>
 <div class="header-actions"><button class="btn" id="themeBtn" type="button" title="Cambiar tema">◐ <span>Tema</span></button><button class="btn" id="exportBtn" type="button">Exportar datos</button><button class="btn primary" id="addBtn" type="button"><span style="font-size:19px;line-height:1">+</span> Nueva materia</button></div></header>
-<section class="toolbar" aria-label="Filtros de horarios"><div class="toolbar-top"><div><div class="eyebrow">Explorar cursadas</div><div class="section-title" style="margin-top:4px">Años de la carrera</div></div><div class="year-filters" id="yearFilters" aria-label="Seleccionar años"></div></div><div class="bottomtools"><label class="eyebrow" for="commission">Comisión</label><select class="select" id="commission"><option value="both">Ambas</option><option value="1">1.ª comisión</option><option value="2">2.ª comisión</option></select><label class="eyebrow" for="search">Buscar</label><input class="search" id="search" type="search" placeholder="Filtrar por materia..." aria-label="Buscar materia"/><button class="btn small" id="overlapBtn" aria-pressed="false">Solo superposiciones</button><div class="seg" role="group" aria-label="Modo de visualización"><button class="btn small selected" id="weekBtn" aria-pressed="true">Semana</button><button class="btn small" id="listBtn" aria-pressed="false">Lista</button></div><button class="btn small" id="resetBtn">Restablecer</button></div></section>
+<section class="toolbar" aria-label="Filtros de horarios"><div class="toolbar-top"><div><div class="eyebrow">Explorar cursadas</div><div class="section-title" style="margin-top:4px">Elegir divisiones</div><p class="division-help">Mostrá una división, las dos de un año o cualquier combinación.</p></div><div class="division-actions"><button class="btn small" id="allDivisions" type="button">Mostrar todas</button><button class="btn small" id="noneDivisions" type="button">Ocultar todas</button></div></div><div class="year-filters" id="yearFilters" aria-label="Elegir divisiones por año"></div><div class="bottomtools"><label class="eyebrow" for="search">Buscar</label><input class="search" id="search" type="search" placeholder="Filtrar por materia..." aria-label="Buscar materia"/><button class="btn small" id="overlapBtn" aria-pressed="false">Solo superposiciones</button><div class="seg" role="group" aria-label="Modo de visualización"><button class="btn small selected" id="weekBtn" aria-pressed="true">Semana</button><button class="btn small" id="listBtn" aria-pressed="false">Lista</button></div><button class="btn small" id="resetBtn">Restablecer</button></div></section>
 <section class="stats" aria-label="Resumen de horarios"><div class="stat"><strong id="statYears">4</strong><small>Años seleccionados</small></div><div class="stat"><strong id="statBlocks">—</strong><small>Clases agrupadas</small></div><div class="stat"><strong id="statOverlap">0</strong><small>Franjas con coincidencias</small></div></section>
 <main class="workspace"><div class="board-header"><div><h2 id="boardTitle">Semana académica</h2><p id="boardSubtitle">Lunes a viernes · 18:30 a 22:20</p></div><span class="board-note">Seleccioná una materia para editarla</span></div><div class="weekscroll" id="scrollView"><div class="week" id="weekView"></div></div><div class="listview is-hidden" id="listView"></div></main>
 <div class="legend" id="legend"></div><p class="muted-note">Las coincidencias indican que dos o más materias de distintas comisiones se dictan en la misma franja; pueden ser completamente normales. Los horarios se tomaron de la planilla original de Historia 2026. Las modificaciones se guardan solo en este navegador.</p><footer class="footer"><div>Hecho para comparar cursadas · Sin docentes, sin cuentas y sin seguimiento de datos.</div><div>Fuente: HISTORIA 2026 Horarios.xlsx · Actualizada 19/10/2026</div></footer>
 </div>
 <div id="modal" class="modal is-hidden" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><div class="eyebrow">Editar horario</div><h2 id="dialogTitle">Nueva materia</h2><form id="eventForm"><label for="name">Materia</label><input id="name" required maxlength="110" placeholder="Ej.: Historia de las ideas II"/><label for="year">Año</label><select id="year"><option value="1">1.º año</option><option value="2">2.º año</option><option value="3">3.º año</option><option value="4">4.º año</option></select><label for="com">Comisión</label><select id="com"><option value="1">1.ª comisión</option><option value="2">2.ª comisión</option></select><label for="day">Día</label><select id="day"><option value="0">Lunes</option><option value="1">Martes</option><option value="2">Miércoles</option><option value="3">Jueves</option><option value="4">Viernes</option></select><label for="slot">Inicio</label><select id="slot"></select><label for="duration">Duración</label><select id="duration"><option value="2">Módulo completo (dos franjas)</option><option value="1">Media franja de módulo</option></select><div class="actions"><button type="button" id="deleteBtn" class="btn danger">Eliminar</button><button type="button" id="cancelBtn" class="btn">Cancelar</button><button class="btn primary" type="submit">Guardar cambios</button></div></form></div></div>
 <script src="data.js"></script><script>
-(()=>{'use strict';const $=s=>document.querySelector(s);const COLORS=['var(--y1)','var(--y2)','var(--y3)','var(--y4)'];const STORAGE='historia-horarios-v1';const KEY='historia-preferencias-v1';let years=[1,2,3,4],commission='both',query='',onlyOverlap=false,view='week',editing=null;
-let changes={upserts:{},deletions:[]};try{let saved=JSON.parse(localStorage.getItem(STORAGE)||'null');if(saved&&saved.upserts&&Array.isArray(saved.deletions))changes=saved}catch(e){}try{let pref=JSON.parse(localStorage.getItem(KEY)||'null');if(pref){years=Array.isArray(pref.years)?pref.years.filter(y=>[1,2,3,4].includes(y)):[1,2,3,4];commission=['both','1','2'].includes(pref.commission)?pref.commission:'both';view=['week','list'].includes(pref.view)?pref.view:'week'}}catch(e){}
-const all=()=>BASE.filter(x=>!changes.deletions.includes(x.id)&&!changes.upserts[x.id]).concat(Object.values(changes.upserts));const shown=()=>all().filter(x=>years.includes(x.year)&&(commission==='both'||String(x.commission)===commission)&&x.name.toLocaleLowerCase('es').includes(query));function matches(){let map=new Map;for(let e of all().filter(x=>years.includes(x.year)&&(commission==='both'||String(x.commission)===commission))){let k=`${e.day}-${e.slot}`;if(!map.has(k))map.set(k,[]);map.get(k).push(e)}return map}function save(){localStorage.setItem(STORAGE,JSON.stringify(changes));render()}function persistPrefs(){localStorage.setItem(KEY,JSON.stringify({years,commission,view}))}
+(()=>{'use strict';const $=s=>document.querySelector(s);const COLORS=['var(--y1)','var(--y2)','var(--y3)','var(--y4)'];const STORAGE='historia-horarios-v1';const KEY='historia-preferencias-v2';const OLD_KEY='historia-preferencias-v1';const ALL_DIVISIONS=Array.from({length:4},(_,i)=>[`${i+1}-1`,`${i+1}-2`]).flat();let selectedDivisions=new Set(ALL_DIVISIONS),query='',onlyOverlap=false,view='week',editing=null;
+let changes={upserts:{},deletions:[]};try{let saved=JSON.parse(localStorage.getItem(STORAGE)||'null');if(saved&&saved.upserts&&Array.isArray(saved.deletions))changes=saved}catch(e){}try{const pref=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem(OLD_KEY)||'null');if(pref){if(Array.isArray(pref.divisions))selectedDivisions=new Set(pref.divisions.filter(v=>ALL_DIVISIONS.includes(v)));else if(Array.isArray(pref.years)){const comm=['1','2'].includes(pref.commission)?[pref.commission]:['1','2'];selectedDivisions=new Set(pref.years.flatMap(y=>comm.map(c=>`${y}-${c}`)).filter(v=>ALL_DIVISIONS.includes(v)));}view=['week','list'].includes(pref.view)?pref.view:'week'}}catch(e){}
+const all=()=>BASE.filter(x=>!changes.deletions.includes(x.id)&&!changes.upserts[x.id]).concat(Object.values(changes.upserts));const isVisible=x=>selectedDivisions.has(`${x.year}-${x.commission}`);const shown=()=>all().filter(x=>isVisible(x)&&x.name.toLocaleLowerCase('es').includes(query));function matches(){let map=new Map;for(let e of all().filter(isVisible)){let k=`${e.day}-${e.slot}`;if(!map.has(k))map.set(k,[]);map.get(k).push(e)}return map}function save(){localStorage.setItem(STORAGE,JSON.stringify(changes));render()}function persistPrefs(){localStorage.setItem(KEY,JSON.stringify({divisions:[...selectedDivisions],view}))}
 function el(tag,cl,text){let n=document.createElement(tag);if(cl)n.className=cl;if(text!==undefined)n.textContent=text;return n}function button(label,cls,fn){let b=el('button',cls,label);b.type='button';b.addEventListener('click',fn);return b}
 // Dos medios módulos consecutivos de la misma materia y comisión constituyen una sola clase.
 // El dato de origen se conserva por franja para no perder precisión al editar/exportar.
@@ -75,17 +94,49 @@ function eventNode(g,overlap){
 }
 function render(){
   const data=shown(),groups=groupClasses(data),m=matches(),overlapping=new Set([...m].filter(([k,v])=>v.length>1).map(([k])=>k));
-  $('#statYears').textContent=years.length;
+  const activeYears=[1,2,3,4].filter(y=>[1,2].some(c=>selectedDivisions.has(`${y}-${c}`)));
+  $('#statYears').textContent=activeYears.length;
   $('#statBlocks').textContent=(onlyOverlap?groups.filter(g=>groupOverlap(g,overlapping)):groups).length;
   $('#statOverlap').textContent=[...overlapping].filter(k=>data.some(e=>`${e.day}-${e.slot}`===k)).length;
   $('#boardTitle').textContent=view==='week'?'Semana académica':'Materias por día';
-  $('#boardSubtitle').textContent=years.length?`${years.map(y=>y+'º').join(', ')} año${years.length>1?'s':''} · ${commission==='both'?'Ambas comisiones':commission+'.ª comisión'}`:'Seleccioná al menos un año';
-  let yf=$('#yearFilters');yf.replaceChildren(...[1,2,3,4].map(y=>{let active=years.includes(y);let b=button('',`year ${active?'':'off'}`,()=>{years=active?years.filter(z=>z!==y):[...years,y].sort();persistPrefs();render()});b.setAttribute('aria-pressed',String(active));let dot=el('i','dot');dot.style.setProperty('--color',COLORS[y-1]);b.append(dot,document.createTextNode(`${y}.º año`));return b}));
-  $('#commission').value=commission;$('#overlapBtn').classList.toggle('selected',onlyOverlap);$('#overlapBtn').setAttribute('aria-pressed',String(onlyOverlap));
+  const active=[...selectedDivisions].filter(k=>ALL_DIVISIONS.includes(k)).sort();
+  $('#boardSubtitle').textContent=!active.length?'Elegí al menos una división':active.length<=3?active.map(k=>{const [y,c]=k.split('-');return `${y}.º ${c}.ª`}).join(' · '):`${active.length} divisiones visibles · ${activeYears.length} años`;
+  const yf=$('#yearFilters');
+  yf.replaceChildren(...[1,2,3,4].map(y=>{
+    const group=el('div','year-group'),head=el('div','year-group-head'),controls=el('div','division-options');
+    const keys=[`${y}-1`,`${y}-2`],allOn=keys.every(k=>selectedDivisions.has(k)),anyOn=keys.some(k=>selectedDivisions.has(k));
+    const yearButton=button('',`year-heading ${anyOn?'':'off'}`,()=>{
+      for(const k of keys){if(allOn)selectedDivisions.delete(k);else selectedDivisions.add(k);}
+      persistPrefs();render();
+    });
+    yearButton.setAttribute('aria-pressed',String(allOn));
+    yearButton.setAttribute('aria-label',`${allOn?'Ocultar':'Mostrar'} todas las divisiones de ${y}.º año`);
+    const dot=el('i','dot');dot.style.setProperty('--color',COLORS[y-1]);
+    yearButton.append(dot,document.createTextNode(`${y}.º año`));
+    head.append(yearButton);
+    for(let c=1;c<=2;c++){
+      const key=`${y}-${c}`,active=selectedDivisions.has(key),row=el('div','division-row');
+      const toggle=button(`${c}.ª división`,`division-toggle ${active?'active':''}`,()=>{
+        if(active)selectedDivisions.delete(key);else selectedDivisions.add(key);
+        persistPrefs();render();
+      });
+      toggle.style.setProperty('--color',COLORS[y-1]);
+      toggle.setAttribute('aria-pressed',String(active));
+      toggle.setAttribute('aria-label',`${active?'Ocultar':'Mostrar'} ${y}.º año, ${c}.ª división`);
+      const solo=button('Solo','division-solo',()=>{
+        selectedDivisions=new Set([key]);persistPrefs();render();
+      });
+      solo.title=`Mostrar únicamente ${y}.º año, ${c}.ª división`;
+      solo.setAttribute('aria-label',solo.title);
+      row.append(toggle,solo);controls.append(row);
+    }
+    group.append(head,controls);return group;
+  }));
+  $('#overlapBtn').classList.toggle('selected',onlyOverlap);$('#overlapBtn').setAttribute('aria-pressed',String(onlyOverlap));
   $('#weekBtn').classList.toggle('selected',view==='week');$('#listBtn').classList.toggle('selected',view==='list');
   $('#weekBtn').setAttribute('aria-pressed',String(view==='week'));$('#listBtn').setAttribute('aria-pressed',String(view==='list'));
   $('#scrollView').classList.toggle('is-hidden',view!=='week');$('#listView').classList.toggle('is-hidden',view!=='list');
-  $('#legend').replaceChildren(...[1,2,3,4].map(y=>{let box=el('span');let dot=el('i','dot');dot.style.setProperty('--color',COLORS[y-1]);box.append(dot,document.createTextNode(y+'.º año'));return box}),el('span','','Borde destacado: coincidencias'));
+  $('#legend').replaceChildren(...activeYears.map(y=>{let box=el('span');let dot=el('i','dot');dot.style.setProperty('--color',COLORS[y-1]);box.append(dot,document.createTextNode(y+'.º año'));return box}),el('span','','Borde destacado: coincidencias'));
   if(view==='week')renderWeek(groups,overlapping);else renderList(groups,overlapping);
 }
 
@@ -162,8 +213,9 @@ function syncDuration(){
 function openEditor(g){
   editing=g||null;
   $('#dialogTitle').textContent=g?'Editar materia':'Nueva materia';
-  $('#name').value=g?.name||'';$('#year').value=g?.year||years[0]||1;
-  $('#com').value=g?.commission||1;$('#day').value=g?.day||0;$('#slot').value=g?.slot||0;
+  const firstDivision=[...selectedDivisions][0]||'1-1';
+  $('#name').value=g?.name||'';$('#year').value=g?.year||Number(firstDivision.split('-')[0]);
+  $('#com').value=g?.commission||Number(firstDivision.split('-')[1]);$('#day').value=g?.day||0;$('#slot').value=g?.slot||0;
   $('#duration').value=g?String(g.members?.length||1):'2';syncDuration();
   $('#deleteBtn').classList.toggle('is-hidden',!g);
   $('#modal').classList.remove('is-hidden');setTimeout(()=>$('#name').focus(),0);
@@ -190,6 +242,6 @@ $('#deleteBtn').addEventListener('click',()=>{
   for(const m of editing.members||[editing]){delete changes.upserts[m.id];if(!changes.deletions.includes(m.id))changes.deletions.push(m.id)}
   closeEditor();save();
 });
-$('#cancelBtn').addEventListener('click',closeEditor);$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeEditor()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').classList.contains('is-hidden'))closeEditor()});$('#addBtn').addEventListener('click',()=>openEditor(null));$('#commission').addEventListener('change',e=>{commission=e.target.value;persistPrefs();render()});$('#search').addEventListener('input',e=>{query=e.target.value.trim().toLocaleLowerCase('es');render()});$('#overlapBtn').addEventListener('click',()=>{onlyOverlap=!onlyOverlap;render()});$('#weekBtn').addEventListener('click',()=>{view='week';persistPrefs();render()});$('#listBtn').addEventListener('click',()=>{view='list';persistPrefs();render()});$('#resetBtn').addEventListener('click',()=>{years=[1,2,3,4];commission='both';query='';onlyOverlap=false;view='week';$('#search').value='';persistPrefs();render()});$('#themeBtn').addEventListener('click',()=>{let cur=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',cur==='dark'?'light':'dark')});$('#exportBtn').addEventListener('click',()=>{let blob=new Blob([JSON.stringify({fuente:'Historia 2026 · PSCS',fecha:'2026-10-19',materias:all()},null,2)],{type:'application/json;charset=utf-8'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='horarios-historia-2026.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)});render();})();
+$('#allDivisions').addEventListener('click',()=>{selectedDivisions=new Set(ALL_DIVISIONS);persistPrefs();render()});$('#noneDivisions').addEventListener('click',()=>{selectedDivisions=new Set();persistPrefs();render()});$('#cancelBtn').addEventListener('click',closeEditor);$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeEditor()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').classList.contains('is-hidden'))closeEditor()});$('#addBtn').addEventListener('click',()=>openEditor(null));$('#search').addEventListener('input',e=>{query=e.target.value.trim().toLocaleLowerCase('es');render()});$('#overlapBtn').addEventListener('click',()=>{onlyOverlap=!onlyOverlap;render()});$('#weekBtn').addEventListener('click',()=>{view='week';persistPrefs();render()});$('#listBtn').addEventListener('click',()=>{view='list';persistPrefs();render()});$('#resetBtn').addEventListener('click',()=>{selectedDivisions=new Set(ALL_DIVISIONS);query='';onlyOverlap=false;view='week';$('#search').value='';persistPrefs();render()});$('#themeBtn').addEventListener('click',()=>{let cur=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',cur==='dark'?'light':'dark')});$('#exportBtn').addEventListener('click',()=>{let blob=new Blob([JSON.stringify({fuente:'Historia 2026 · PSCS',fecha:'2026-10-19',materias:all()},null,2)],{type:'application/json;charset=utf-8'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='horarios-historia-2026.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)});render();})();
 </script>
 </body></html>
