@@ -29,3 +29,5 @@ Se utilizaron recomendaciones visuales de UI/UX Pro Max Skill 2.15.0 aportada pa
 ## Visualización por módulos (actualización)
 
 Cada módulo se muestra como una única franja de calendario. Cuando una comisión cursa la misma materia en las dos mitades del módulo, aparece **un único bloque**, por ejemplo 18:30–19:40. Si cambia la materia a mitad del módulo, aparecen dos bloques diferenciados con sus horas exactas. Los recreos mantienen la separación entre módulos. La vista de lista y el editor respetan estos bloques agrupados; la edición o eliminación de una clase completa afecta sus dos mitades.
+- Las clases de dos comisiones en el mismo horario se muestran una al lado de la otra, con el ancho repartido entre ellas y toda la altura del módulo cuando corresponde.
+- Los medios módulos siguen respetando su mitad temporal; cuando hay más clases simultáneas se agregan columnas y el calendario permite desplazamiento horizontal.
