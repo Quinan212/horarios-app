@@ -26,6 +26,15 @@
 .module-cell .event{min-height:53px;padding:8px 10px;gap:5px}
 .module-cell .event small{line-height:1.25}
 @media(max-width:750px){.week{min-width:1090px;grid-template-columns:78px repeat(5,minmax(202px,1fr))}.module-cell{padding:7px;gap:6px}.module-time strong{font-size:11px}}
+
+/* Clases paralelas: columnas para coincidencias y dos medias franjas en altura. */
+.module-cell:not(.module-time){padding:8px;min-height:204px;overflow:hidden}
+.module-timeline{display:grid;grid-template-rows:repeat(2,minmax(0,1fr));gap:6px;min-width:0;width:100%;height:186px}
+.module-timeline .event{width:100%;height:100%;min-height:0;min-width:0;padding:10px 9px;overflow:auto;overflow-wrap:anywhere;justify-content:flex-start;align-self:stretch;border-radius:10px;gap:7px}
+.module-timeline .event b{font-size:12px;line-height:1.25}
+.module-timeline .event small{font-size:10px;line-height:1.3}
+.module-cell .empty-slot{min-height:186px}
+@media(max-width:750px){.module-cell:not(.module-time){padding:7px;min-height:202px}.module-timeline{height:188px}}
 </style>
 </head>
 <body>
@@ -79,20 +88,50 @@ function render(){
   $('#legend').replaceChildren(...[1,2,3,4].map(y=>{let box=el('span');let dot=el('i','dot');dot.style.setProperty('--color',COLORS[y-1]);box.append(dot,document.createTextNode(y+'.º año'));return box}),el('span','','Borde destacado: coincidencias'));
   if(view==='week')renderWeek(groups,overlapping);else renderList(groups,overlapping);
 }
+
+function moduleLayout(day,module,groups,overlapping){
+  const events=groups.filter(g=>g.day===day&&Math.floor(g.slot/2)===module&&(!onlyOverlap||groupOverlap(g,overlapping)))
+    .sort((a,b)=>a.slot-b.slot||(b.lastSlot-b.slot)-(a.lastSlot-a.slot)||a.year-b.year||a.commission-b.commission);
+  const lanes=[];
+  const placed=[];
+  for(const g of events){
+    const overlaps=(other)=>g.slot<=other.lastSlot&&other.slot<=g.lastSlot;
+    let lane=lanes.findIndex(items=>items.every(other=>!overlaps(other)));
+    if(lane===-1){lane=lanes.length;lanes.push([]);}
+    lanes[lane].push(g);
+    placed.push({group:g,lane});
+  }
+  return {placed,columns:Math.max(1,lanes.length)};
+}
 function moduleCell(day,module,groups,overlapping){
-  const cell=el('div','module-cell');cell.setAttribute('aria-label',`${DAYS[day]}, módulo ${module+1}`);
-  const displayed=groups.filter(g=>g.day===day&&Math.floor(g.slot/2)===module&&(!onlyOverlap||groupOverlap(g,overlapping)))
-    .sort((a,b)=>a.year-b.year||a.commission-b.commission||a.slot-b.slot);
-  for(const g of displayed)cell.append(eventNode(g,groupOverlap(g,overlapping)));
-  if(!displayed.length)cell.append(el('span','empty-slot','·'));
+  const cell=el('div','module-cell');cell.setAttribute('aria-label',DAYS[day]+', módulo '+(module+1));
+  const {placed,columns}=moduleLayout(day,module,groups,overlapping);
+  if(!placed.length){cell.append(el('span','empty-slot','·'));return cell;}
+  const timeline=el('div','module-timeline');
+  timeline.style.gridTemplateColumns='repeat('+columns+',minmax(0,1fr))';
+  for(const {group:g,lane} of placed){
+    const n=eventNode(g,groupOverlap(g,overlapping));
+    n.style.gridColumn=String(lane+1);
+    n.style.gridRow=((g.slot%2)+1)+' / span '+(g.lastSlot-g.slot+1);
+    timeline.append(n);
+  }
+  cell.append(timeline);
   return cell;
 }
 function renderWeek(groups,overlapping){
-  const root=$('#weekView');root.replaceChildren();root.append(el('div','dayhead time-heading','Hora'));
+  const root=$('#weekView');root.replaceChildren();
+  const widths=Array.from({length:5},(_,day)=>{
+    const maxConcurrent=Math.max(...[0,1,2].map(module=>moduleLayout(day,module,groups,overlapping).columns));
+    return Math.max(205,maxConcurrent*148);
+  });
+  const hourWidth=92;
+  root.style.gridTemplateColumns=hourWidth+'px '+widths.map(w=>w+'px').join(' ');
+  root.style.minWidth=(hourWidth+widths.reduce((a,b)=>a+b,0))+'px';
+  root.append(el('div','dayhead time-heading','Hora'));
   for(let d=0;d<5;d++)root.append(el('div','dayhead',DAYS[d]));
   for(let module=0;module<3;module++){
     const t=el('div','module-cell module-time');
-    t.append(el('strong','',`${module+1}.º módulo`),el('small','',`${SLOTS[module*2][0]}–${SLOTS[module*2+1][1]}`));
+    t.append(el('strong','',(module+1)+'.º módulo'),el('small','',SLOTS[module*2][0]+'–'+SLOTS[module*2+1][1]));
     root.append(t);
     for(let d=0;d<5;d++)root.append(moduleCell(d,module,groups,overlapping));
     if(module!==2){root.append(el('div','pause-cell pause-label','Recreo'));for(let d=0;d<5;d++)root.append(el('div','pause-cell'));}
