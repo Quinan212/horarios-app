@@ -5,7 +5,8 @@ Aplicación web estática para comparar las ocho comisiones del Profesorado de E
 ## Funciones
 
 - Grilla de lunes a viernes, 18:30–22:20, con franjas y recreos.
-- Cuatro años, dos comisiones por año; filtros de año, comisión y búsqueda.
+- Selector independiente de ocho divisiones (1.ª y 2.ª de cada año), con opciones para elegir una sola, combinar varias o activar/desactivar un año completo. La selección se recuerda en este navegador.
+- Búsqueda de materias, filtros de superposición y acciones para mostrar u ocultar todas las divisiones.
 - Resaltado de franjas donde coinciden varias materias seleccionadas.
 - Vista semanal / vista de lista.
 - Edición y adición de materias con almacenamiento en el navegador.
