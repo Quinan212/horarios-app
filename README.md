@@ -25,3 +25,7 @@ Los cambios son locales al navegador y no se sincronizan entre dispositivos; la 
 ## Diseño
 
 Se utilizaron recomendaciones visuales de UI/UX Pro Max Skill 2.15.0 aportada para este proyecto. No se distribuye la skill dentro de la app.
+
+## Visualización por módulos (actualización)
+
+Cada módulo se muestra como una única franja de calendario. Cuando una comisión cursa la misma materia en las dos mitades del módulo, aparece **un único bloque**, por ejemplo 18:30–19:40. Si cambia la materia a mitad del módulo, aparecen dos bloques diferenciados con sus horas exactas. Los recreos mantienen la separación entre módulos. La vista de lista y el editor respetan estos bloques agrupados; la edición o eliminación de una clase completa afecta sus dos mitades.
