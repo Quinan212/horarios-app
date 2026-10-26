@@ -54,30 +54,66 @@
 .division-solo{min-width:36px;padding:4px 5px;min-height:38px;border:1px solid var(--border);border-radius:9px;color:var(--sub);font-size:10px;background:var(--panel)}
 @media(max-width:950px){.year-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:460px){.year-group{padding:8px}.division-toggle{font-size:11px;padding:6px}.division-solo{min-width:32px;font-size:10px}.division-actions{width:100%}.division-actions button{flex:1}.year-filters{gap:7px}}
+
+.career-switcher{display:flex;flex-direction:column;gap:9px;padding-top:2px}
+.career-buttons{display:flex;gap:7px;flex-wrap:wrap}
+.career-choice{background:var(--soft);border:1px solid var(--border);border-radius:10px;padding:9px 15px;color:var(--sub);font-size:12px;font-weight:560;min-height:38px}
+.career-choice.selected{background:var(--hover);color:var(--accent);border-color:var(--accent)}
+.career-choice:hover{color:var(--ink);background:var(--hover)}
+@media(max-width:460px){.career-choice{padding:8px 10px;font-size:11px}.career-buttons{gap:5px}}
 </style>
 </head>
 <body>
 <div class="app">
-<header class="head"><div><div class="brand"><span class="brandmark" aria-hidden="true"><i></i><i></i><i></i><i></i></span> PSCS · Profesorado de Historia <span style="opacity:.35">/</span> Ciclo 2026</div><h1>Mapa de horarios<span style="color:var(--accent)">.</span></h1><p class="subtitle">Una mirada completa a las cursadas de los cuatro años. Compará comisiones, identificá coincidencias y ajustá tus horarios.</p></div>
+<header class="head"><div><div class="brand"><span class="brandmark" aria-hidden="true"><i></i><i></i><i></i><i></i></span> PSCS · Profesorado de Historia <span style="opacity:.35">/</span> Ciclo 2026</div><h1>Mapa de horarios<span style="color:var(--accent)">.</span></h1><p class="subtitle">Consultá las cursadas de Historia, Geografía y Ciencia Política. Compará años, divisiones y materias simultáneas.</p></div>
 <div class="header-actions"><button class="btn" id="themeBtn" type="button" title="Cambiar tema">◐ <span>Tema</span></button><button class="btn" id="exportBtn" type="button">Exportar datos</button><button class="btn primary" id="addBtn" type="button"><span style="font-size:19px;line-height:1">+</span> Nueva materia</button></div></header>
-<section class="toolbar" aria-label="Filtros de horarios"><div class="toolbar-top"><div><div class="eyebrow">Explorar cursadas</div><div class="section-title" style="margin-top:4px">Elegir divisiones</div><p class="division-help">Mostrá una división, las dos de un año o cualquier combinación.</p></div><div class="division-actions"><button class="btn small" id="allDivisions" type="button">Mostrar todas</button><button class="btn small" id="noneDivisions" type="button">Ocultar todas</button></div></div><div class="year-filters" id="yearFilters" aria-label="Elegir divisiones por año"></div><div class="bottomtools"><label class="eyebrow" for="search">Buscar</label><input class="search" id="search" type="search" placeholder="Filtrar por materia..." aria-label="Buscar materia"/><button class="btn small" id="overlapBtn" aria-pressed="false">Solo superposiciones</button><div class="seg" role="group" aria-label="Modo de visualización"><button class="btn small selected" id="weekBtn" aria-pressed="true">Semana</button><button class="btn small" id="listBtn" aria-pressed="false">Lista</button></div><button class="btn small" id="resetBtn">Restablecer</button></div></section>
+<section class="toolbar" aria-label="Filtros de horarios"><div class="toolbar-top"><div><div class="eyebrow">Explorar cursadas</div><div class="section-title" style="margin-top:4px">Elegir divisiones</div><p class="division-help">Mostrá una división, las dos de un año o cualquier combinación.</p></div><div class="division-actions"><button class="btn small" id="allDivisions" type="button">Mostrar todas</button><button class="btn small" id="noneDivisions" type="button">Ocultar todas</button></div></div><div class="career-switcher"><div class="eyebrow">Carrera</div><div class="career-buttons" id="careerFilters" role="group" aria-label="Elegir carrera"></div></div><div class="year-filters" id="yearFilters" aria-label="Elegir divisiones por año"></div><div class="bottomtools"><label class="eyebrow" for="search">Buscar</label><input class="search" id="search" type="search" placeholder="Filtrar por materia..." aria-label="Buscar materia"/><button class="btn small" id="overlapBtn" aria-pressed="false">Solo superposiciones</button><div class="seg" role="group" aria-label="Modo de visualización"><button class="btn small selected" id="weekBtn" aria-pressed="true">Semana</button><button class="btn small" id="listBtn" aria-pressed="false">Lista</button></div><button class="btn small" id="resetBtn">Restablecer</button></div></section>
 <section class="stats" aria-label="Resumen de horarios"><div class="stat"><strong id="statYears">4</strong><small>Años seleccionados</small></div><div class="stat"><strong id="statBlocks">—</strong><small>Clases agrupadas</small></div><div class="stat"><strong id="statOverlap">0</strong><small>Franjas con coincidencias</small></div></section>
 <main class="workspace"><div class="board-header"><div><h2 id="boardTitle">Semana académica</h2><p id="boardSubtitle">Lunes a viernes · 18:30 a 22:20</p></div><span class="board-note">Seleccioná una materia para editarla</span></div><div class="weekscroll" id="scrollView"><div class="week" id="weekView"></div></div><div class="listview is-hidden" id="listView"></div></main>
-<div class="legend" id="legend"></div><p class="muted-note">Las coincidencias indican que dos o más materias de distintas comisiones se dictan en la misma franja; pueden ser completamente normales. Los horarios se tomaron de la planilla original de Historia 2026. Las modificaciones se guardan solo en este navegador.</p><footer class="footer"><div>Hecho para comparar cursadas · Sin docentes, sin cuentas y sin seguimiento de datos.</div><div>Fuente: HISTORIA 2026 Horarios.xlsx · Actualizada 19/10/2026</div></footer>
+<div class="legend" id="legend"></div><p class="muted-note">Las coincidencias muestran clases simultáneas y no implican necesariamente un conflicto. Los datos provienen de las planillas 2026 de Historia, Geografía y Ciencia Política. Los cambios se guardan solo en este navegador.</p><footer class="footer"><div>Hecho para comparar cursadas · Sin docentes, sin cuentas y sin seguimiento de datos.</div><div>Fuentes: horarios de las tres carreras · Octubre de 2026</div></footer>
 </div>
-<div id="modal" class="modal is-hidden" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><div class="eyebrow">Editar horario</div><h2 id="dialogTitle">Nueva materia</h2><form id="eventForm"><label for="name">Materia</label><input id="name" required maxlength="110" placeholder="Ej.: Historia de las ideas II"/><label for="year">Año</label><select id="year"><option value="1">1.º año</option><option value="2">2.º año</option><option value="3">3.º año</option><option value="4">4.º año</option></select><label for="com">Comisión</label><select id="com"><option value="1">1.ª comisión</option><option value="2">2.ª comisión</option></select><label for="day">Día</label><select id="day"><option value="0">Lunes</option><option value="1">Martes</option><option value="2">Miércoles</option><option value="3">Jueves</option><option value="4">Viernes</option></select><label for="slot">Inicio</label><select id="slot"></select><label for="duration">Duración</label><select id="duration"><option value="2">Módulo completo (dos franjas)</option><option value="1">Media franja de módulo</option></select><div class="actions"><button type="button" id="deleteBtn" class="btn danger">Eliminar</button><button type="button" id="cancelBtn" class="btn">Cancelar</button><button class="btn primary" type="submit">Guardar cambios</button></div></form></div></div>
-<script src="data.js"></script><script>
-(()=>{'use strict';const $=s=>document.querySelector(s);const COLORS=['var(--y1)','var(--y2)','var(--y3)','var(--y4)'];const STORAGE='historia-horarios-v1';const KEY='historia-preferencias-v2';const OLD_KEY='historia-preferencias-v1';const ALL_DIVISIONS=Array.from({length:4},(_,i)=>[`${i+1}-1`,`${i+1}-2`]).flat();let selectedDivisions=new Set(ALL_DIVISIONS),query='',onlyOverlap=false,view='week',editing=null;
-let changes={upserts:{},deletions:[]};try{let saved=JSON.parse(localStorage.getItem(STORAGE)||'null');if(saved&&saved.upserts&&Array.isArray(saved.deletions))changes=saved}catch(e){}try{const pref=JSON.parse(localStorage.getItem(KEY)||localStorage.getItem(OLD_KEY)||'null');if(pref){if(Array.isArray(pref.divisions))selectedDivisions=new Set(pref.divisions.filter(v=>ALL_DIVISIONS.includes(v)));else if(Array.isArray(pref.years)){const comm=['1','2'].includes(pref.commission)?[pref.commission]:['1','2'];selectedDivisions=new Set(pref.years.flatMap(y=>comm.map(c=>`${y}-${c}`)).filter(v=>ALL_DIVISIONS.includes(v)));}view=['week','list'].includes(pref.view)?pref.view:'week'}}catch(e){}
-const all=()=>BASE.filter(x=>!changes.deletions.includes(x.id)&&!changes.upserts[x.id]).concat(Object.values(changes.upserts));const isVisible=x=>selectedDivisions.has(`${x.year}-${x.commission}`);const shown=()=>all().filter(x=>isVisible(x)&&x.name.toLocaleLowerCase('es').includes(query));function matches(){let map=new Map;for(let e of all().filter(isVisible)){let k=`${e.day}-${e.slot}`;if(!map.has(k))map.set(k,[]);map.get(k).push(e)}return map}function save(){localStorage.setItem(STORAGE,JSON.stringify(changes));render()}function persistPrefs(){localStorage.setItem(KEY,JSON.stringify({divisions:[...selectedDivisions],view}))}
+<div id="modal" class="modal is-hidden" role="presentation"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle"><div class="eyebrow">Editar horario</div><h2 id="dialogTitle">Nueva materia</h2><form id="eventForm"><label for="name">Materia</label><input id="name" required maxlength="110" placeholder="Ej.: Historia de las ideas II"/><label for="editCareer">Carrera</label><select id="editCareer"><option value="historia">Historia</option><option value="geografia">Geografía</option><option value="politica">Ciencia Política</option></select><label for="year">Año</label><select id="year"><option value="1">1.º año</option><option value="2">2.º año</option><option value="3">3.º año</option><option value="4">4.º año</option></select><label for="com">Comisión</label><select id="com"><option value="1">1.ª comisión</option><option value="2">2.ª comisión</option></select><label for="day">Día</label><select id="day"><option value="0">Lunes</option><option value="1">Martes</option><option value="2">Miércoles</option><option value="3">Jueves</option><option value="4">Viernes</option></select><label for="slot">Inicio</label><select id="slot"></select><label for="duration">Duración</label><select id="duration"><option value="2">Módulo completo (dos franjas)</option><option value="1">Media franja de módulo</option></select><div class="actions"><button type="button" id="deleteBtn" class="btn danger">Eliminar</button><button type="button" id="cancelBtn" class="btn">Cancelar</button><button class="btn primary" type="submit">Guardar cambios</button></div></form></div></div>
+<script src="data.js"></script><script src="career-data.js"></script><script>
+(()=>{'use strict';const $=s=>document.querySelector(s);const COLORS=['var(--y1)','var(--y2)','var(--y3)','var(--y4)'];const STORAGE='historia-horarios-v1',KEY='horarios-preferencias-v3',OLD_KEY='historia-preferencias-v2',OLD_KEY2='historia-preferencias-v1';
+const CAREERS=[{id:'historia',label:'Historia',short:'Historia',divisions:[1,2]},{id:'geografia',label:'Geografía',short:'Geografía',divisions:[1]},{id:'politica',label:'Ciencia Política',short:'C. Política',divisions:[1]}];
+const CAREER_NAMES=Object.fromEntries(CAREERS.map(c=>[c.id,c.label]));
+const ALL_DIVISIONS=CAREERS.flatMap(c=>Array.from({length:4},(_,i)=>c.divisions.map(d=>`${c.id}-${i+1}-${d}`)).flat());
+let selectedDivisions=new Set(ALL_DIVISIONS),careerFilter='historia',query='',onlyOverlap=false,view='week',editing=null;
+let changes={upserts:{},deletions:[]};
+try{const saved=JSON.parse(localStorage.getItem(STORAGE)||'null');if(saved&&saved.upserts&&Array.isArray(saved.deletions))changes=saved}catch(e){}
+try{
+ const pref=JSON.parse(localStorage.getItem(KEY)||'null');
+ if(pref){
+  if(Array.isArray(pref.divisions))selectedDivisions=new Set(pref.divisions.filter(k=>ALL_DIVISIONS.includes(k)));
+  careerFilter=['historia','geografia','politica','all'].includes(pref.careerFilter)?pref.careerFilter:'historia';
+  view=['week','list'].includes(pref.view)?pref.view:'week';
+ }else{
+  const old=JSON.parse(localStorage.getItem(OLD_KEY)||localStorage.getItem(OLD_KEY2)||'null');
+  if(old){
+   let oldKeys=Array.isArray(old.divisions)?old.divisions:(Array.isArray(old.years)?old.years.flatMap(y=>(['1','2'].includes(old.commission)?[old.commission]:['1','2']).map(c=>`${y}-${c}`)):null);
+   if(oldKeys)selectedDivisions=new Set([...ALL_DIVISIONS.filter(k=>!k.startsWith('historia-')),...oldKeys.map(k=>'historia-'+k).filter(k=>ALL_DIVISIONS.includes(k))]);
+   view=['week','list'].includes(old.view)?old.view:'week';
+  }
+ }
+}catch(e){}
+const careerOf=e=>e.career||'historia';
+const divisionKey=e=>`${careerOf(e)}-${e.year}-${e.commission}`;
+const careerEnabled=c=>careerFilter==='all'||careerFilter===c;
+const visibleDivisionKeys=()=>ALL_DIVISIONS.filter(k=>careerEnabled(k.split('-')[0]));
+const all=()=>BASE.filter(x=>!changes.deletions.includes(x.id)&&!changes.upserts[x.id]).concat(Object.values(changes.upserts));
+const isVisible=x=>careerEnabled(careerOf(x))&&selectedDivisions.has(divisionKey(x));
+const shown=()=>all().filter(x=>isVisible(x)&&x.name.toLocaleLowerCase('es').includes(query));
+function matches(){const map=new Map;for(let e of all().filter(isVisible)){const k=e.day+'-'+e.slot;if(!map.has(k))map.set(k,[]);map.get(k).push(e)}return map}
+function save(){localStorage.setItem(STORAGE,JSON.stringify(changes));render()}
+function persistPrefs(){localStorage.setItem(KEY,JSON.stringify({divisions:[...selectedDivisions],careerFilter,view}))}
 function el(tag,cl,text){let n=document.createElement(tag);if(cl)n.className=cl;if(text!==undefined)n.textContent=text;return n}function button(label,cls,fn){let b=el('button',cls,label);b.type='button';b.addEventListener('click',fn);return b}
 // Dos medios módulos consecutivos de la misma materia y comisión constituyen una sola clase.
 // El dato de origen se conserva por franja para no perder precisión al editar/exportar.
 function groupClasses(entries){
-  const sorted=[...entries].sort((a,b)=>a.day-b.day||a.year-b.year||a.commission-b.commission||a.slot-b.slot);
+  const sorted=[...entries].sort((a,b)=>a.day-b.day||careerOf(a).localeCompare(careerOf(b))||a.year-b.year||a.commission-b.commission||a.slot-b.slot);
   const groups=[];
   for(const e of sorted){
-    let group=groups.find(g=>g.day===e.day&&g.year===e.year&&g.commission===e.commission&&g.lastSlot===e.slot-1&&Math.floor(g.slot/2)===Math.floor(e.slot/2)&&g.name.trim().toLocaleLowerCase('es')===e.name.trim().toLocaleLowerCase('es'));
+    let group=groups.find(g=>g.day===e.day&&careerOf(g)===careerOf(e)&&g.year===e.year&&g.commission===e.commission&&g.lastSlot===e.slot-1&&Math.floor(g.slot/2)===Math.floor(e.slot/2)&&g.name.trim().toLocaleLowerCase('es')===e.name.trim().toLocaleLowerCase('es'));
     if(group){group.members.push(e);group.lastSlot=e.slot;}
     else groups.push({...e,members:[e],lastSlot:e.slot});
   }
@@ -142,7 +178,7 @@ function render(){
 
 function moduleLayout(day,module,groups,overlapping){
   const events=groups.filter(g=>g.day===day&&Math.floor(g.slot/2)===module&&(!onlyOverlap||groupOverlap(g,overlapping)))
-    .sort((a,b)=>a.slot-b.slot||(b.lastSlot-b.slot)-(a.lastSlot-a.slot)||a.year-b.year||a.commission-b.commission);
+    .sort((a,b)=>a.slot-b.slot||(b.lastSlot-b.slot)-(a.lastSlot-a.slot)||careerOf(a).localeCompare(careerOf(b))||a.year-b.year||a.commission-b.commission);
   const lanes=[];
   const placed=[];
   for(const g of events){
@@ -197,7 +233,7 @@ function renderList(groups,overlapping){
     for(let g of filtered){
       let line=el('div','listline'),desc=el('div');
       let name=button(g.name,'',()=>openEditor(g));
-      desc.append(name,el('div','',`${g.year}.º año · ${g.commission}.ª comisión`));
+      desc.append(name,el('div','',`${CAREER_NAMES[careerOf(g)]} · ${g.year}.º año · ${g.commission}.ª división`));
       desc.lastChild.style.cssText='font-size:11px;color:var(--sub);margin-top:3px';
       line.style.borderLeft=`4px solid ${COLORS[g.year-1]}`;
       line.append(desc,el('small','',groupPeriod(g)));day.append(line);
