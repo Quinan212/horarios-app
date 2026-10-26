@@ -1,6 +1,6 @@
-# Mapa de horarios — Historia 2026
+# Horarios · PSCS 2026
 
-Aplicación web estática para comparar las ocho comisiones del Profesorado de Educación Secundaria en Historia del Profesorado Superior de Ciencias Sociales, Concordia (Entre Ríos).
+Aplicación web estática para consultar y comparar las 16 divisiones de Historia, Geografía y Ciencia Política del Profesorado Superior de Ciencias Sociales, Concordia (Entre Ríos).
 
 ## Funciones
 
@@ -8,24 +8,47 @@ Aplicación web estática para comparar las ocho comisiones del Profesorado de E
 - Selector de carrera (Historia, Geografía, Ciencia Política o Todas) con filtros individuales de las 16 divisiones; permite combinar años y carreras para detectar coincidencias. Se recuerda la selección en el navegador.
 - Búsqueda de materias, filtros de superposición y acciones para mostrar u ocultar todas las divisiones.
 - Resaltado de franjas donde coinciden varias materias seleccionadas.
-- Vista semanal / vista de lista.
-- Edición y adición de materias con almacenamiento en el navegador.
+- Vistas Día, Semana y Lista; Semana es la vista inicial de escritorio y Día la de móvil. Cada tamaño recuerda la última vista elegida.
+- Agenda diaria con selector de lunes a viernes para móvil vertical, y lista agrupada por día.
+- Edición, adición y eliminación de materias con almacenamiento en el navegador. Editor lateral en escritorio y diálogo inferior en pantallas compactas.
+- Deshacer el último cambio de la sesión, desde el aviso o el menú de opciones.
 - Exportación de horarios en JSON.
-- Modo claro/oscuro, diseño responsive, sin dependencias externas.
+- Apariencia del sistema, clara u oscura, diseño responsive, sin dependencias de ejecución externas.
+- Navegación por teclado, foco visible, etiquetas accesibles, mensajes de estado y respeto por movimiento reducido.
 
 ## Uso local
 
-Abrir `index.html` en cualquier navegador moderno. Para instalar como PWA o compartirla, usar un servidor HTTPS (GitHub Pages / Vercel / Netlify).
+Abrir `index.html` en un navegador moderno, o servir esta carpeta con un servidor estático. No requiere instalación de paquetes ni compilación. Para compartirla, publicar los archivos en un alojamiento HTTPS.
+
+El manifiesto aporta nombre, icono y modo de apertura. No hay un service worker ni una garantía de uso sin conexión.
+
+## Comprobación
+
+Con Node.js instalado:
+
+```sh
+node --check app.js
+node --check schedule-core.js
+node --test tests/schedule-core.test.cjs
+```
+
+Las pruebas verifican los 402 registros, las 16 divisiones y las 242 clases agrupadas, continuidad dentro del módulo, separación de clases simultáneas, compatibilidad de cambios anteriores y búsqueda sin tildes. La revisión visual e interactiva se documenta en [design-qa.md](design-qa.md).
+
+`schedule-core.js` contiene las reglas de horarios; `app.js` administra filtros, vistas, edición y persistencia; `styles.css` define la presentación adaptable.
 
 ## Datos y limitaciones
 
 Se transcribieron los horarios de la planilla **HISTORIA 2026 Horarios.xlsx** (modificada 19/10/2026). Los nombres de docentes fueron omitidos a propósito. Se conservaron las denominaciones de las materias y las asignaciones horarias que aparecen en la planilla, incluyendo posibles inconsistencias de origen (por ejemplo, Práctica Docente II en primer año y el número de Contemporáneos en cuarto). La planilla contiene celdas vacías y rótulos sueltos que no se interpretaron como nuevas clases. Verificar cualquier decisión institucional con Secretaría Académica.
 
-Los cambios son locales al navegador y no se sincronizan entre dispositivos; la exportación permite respaldarlos.
+Los cambios son locales al navegador y no se sincronizan entre dispositivos; la exportación permite respaldarlos. Se conserva la clave de cambios `historia-horarios-v1` y se validan los registros anteriores al cargarlos. La exportación JSON contiene todas las carreras y personalizaciones, no solamente las clases visibles. No se incluye una función de importación.
 
 ## Diseño
 
-Se utilizaron recomendaciones visuales de UI/UX Pro Max Skill 2.15.0 aportada para este proyecto. No se distribuye la skill dentro de la app.
+El rediseño combina las propuestas elegidas: móvil diario de la opción 1, calendario de escritorio de la opción 2 y lista con inspector de la opción 3. Aplica criterios de las [Human Interface Guidelines de Apple](https://developer.apple.com/design/human-interface-guidelines/): jerarquía clara, controles consistentes, adaptación al espacio, acciones reversibles y accesibilidad. Es una interfaz web; no utiliza componentes nativos de Apple.
+
+La tipografía usa las fuentes del sistema. Se conserva el icono original del proyecto. Los iconos adicionales son de [Phosphor Icons](https://github.com/phosphor-icons/core), con licencia MIT incluida en `assets/icons/LICENSE.txt`.
+
+El paquete UI/UX Pro Max Skill 2.15.0 aportado se analizó como material de referencia. No se distribuye ni ejecuta dentro de la app.
 
 ## Visualización por módulos (actualización)
 
