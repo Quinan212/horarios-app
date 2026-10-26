@@ -5,7 +5,7 @@ Aplicación web estática para comparar las ocho comisiones del Profesorado de E
 ## Funciones
 
 - Grilla de lunes a viernes, 18:30–22:20, con franjas y recreos.
-- Selector independiente de ocho divisiones (1.ª y 2.ª de cada año), con opciones para elegir una sola, combinar varias o activar/desactivar un año completo. La selección se recuerda en este navegador.
+- Selector de carrera (Historia, Geografía, Ciencia Política o Todas) con filtros individuales de las 16 divisiones; permite combinar años y carreras para detectar coincidencias. Se recuerda la selección en el navegador.
 - Búsqueda de materias, filtros de superposición y acciones para mostrar u ocultar todas las divisiones.
 - Resaltado de franjas donde coinciden varias materias seleccionadas.
 - Vista semanal / vista de lista.
@@ -32,3 +32,13 @@ Se utilizaron recomendaciones visuales de UI/UX Pro Max Skill 2.15.0 aportada pa
 Cada módulo se muestra como una única franja de calendario. Cuando una comisión cursa la misma materia en las dos mitades del módulo, aparece **un único bloque**, por ejemplo 18:30–19:40. Si cambia la materia a mitad del módulo, aparecen dos bloques diferenciados con sus horas exactas. Los recreos mantienen la separación entre módulos. La vista de lista y el editor respetan estos bloques agrupados; la edición o eliminación de una clase completa afecta sus dos mitades.
 - Las clases de dos comisiones en el mismo horario se muestran una al lado de la otra, con el ancho repartido entre ellas y toda la altura del módulo cuando corresponde.
 - Los medios módulos siguen respetando su mitad temporal; cuando hay más clases simultáneas se agregan columnas y el calendario permite desplazamiento horizontal.
+
+## Geografía y Ciencia Política · actualización octubre 2026
+
+Se incorporaron los cuatro años de **Geografía** (103 franjas) y los cuatro años de **Ciencia Política** (106 franjas) a partir de sus planillas de horarios actualizadas de octubre de 2026. Historia conserva sus ocho divisiones y 193 franjas. En total: **16 divisiones, 402 franjas y 242 clases agrupadas** según la regla de continuidad dentro de cada módulo.
+
+Los registros se mantienen en `data.js` (Historia) y `career-data.js` (Geografía y Ciencia Política). Los nombres del personal docente se excluyen de la vista. Una celda de 4.º de Ciencia Política contenía únicamente «Ignacio Díaz» y se descartó por no identificar una materia. La fuente sigue siendo la planilla original, que puede requerir confirmación institucional en casos de datos incompletos o discrepancias.
+
+La opción **Todas** permite comparar entre carreras; las tarjetas conservan el año mediante colores. El editor ahora incluye el campo Carrera. Los datos iniciales de Historia y las personalizaciones locales anteriores se conservan.
+
+Fuentes: [Historia 2026](https://docs.google.com/spreadsheets/d/1UEIhqxZstwIM2pKali8YwkaY3zRbso1X/edit), [Geografía 2026](https://docs.google.com/spreadsheets/d/1n6jXd48oKlDClb5Rs788ctV4YAWJF1XI/edit), [Ciencia Política 2026](https://docs.google.com/spreadsheets/d/1fIeAO6PqOSqQ89vsCuXH7aCPZ0EkKAes/edit).
