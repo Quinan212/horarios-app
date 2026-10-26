@@ -122,58 +122,65 @@ function groupClasses(entries){
 function groupPeriod(g){return `${SLOTS[g.slot][0]}–${SLOTS[g.lastSlot][1]}`;}
 function groupOverlap(g,overlapping){for(let i=g.slot;i<=g.lastSlot;i++)if(overlapping.has(`${g.day}-${i}`))return true;return false;}
 function eventNode(g,overlap){
-  let n=button('', 'event',()=>openEditor(g));n.style.setProperty('--ev',COLORS[g.year-1]);
-  n.append(el('b','',g.name),el('small','',`${g.year}.º año · ${g.commission}.ª comisión · ${groupPeriod(g)}`));
-  if(overlap)n.classList.add('match');
-  n.title=`${g.name} · ${DAYS[g.day]} ${groupPeriod(g)} · Año ${g.year} comisión ${g.commission}`;
-  return n;
+ let n=button('','event',()=>openEditor(g));n.style.setProperty('--ev',COLORS[g.year-1]);
+ const prefix=careerFilter==='all'?CAREER_NAMES[careerOf(g)]+' · ':'';
+ n.append(el('b','',g.name),el('small','',`${prefix}${g.year}.º año · ${g.commission}.ª división · ${groupPeriod(g)}`));
+ if(overlap)n.classList.add('match');
+ n.title=`${g.name} · ${CAREER_NAMES[careerOf(g)]} · ${DAYS[g.day]} ${groupPeriod(g)} · ${g.year}.º año`;
+ return n;
 }
 function render(){
-  const data=shown(),groups=groupClasses(data),m=matches(),overlapping=new Set([...m].filter(([k,v])=>v.length>1).map(([k])=>k));
-  const activeYears=[1,2,3,4].filter(y=>[1,2].some(c=>selectedDivisions.has(`${y}-${c}`)));
-  $('#statYears').textContent=activeYears.length;
-  $('#statBlocks').textContent=(onlyOverlap?groups.filter(g=>groupOverlap(g,overlapping)):groups).length;
-  $('#statOverlap').textContent=[...overlapping].filter(k=>data.some(e=>`${e.day}-${e.slot}`===k)).length;
-  $('#boardTitle').textContent=view==='week'?'Semana académica':'Materias por día';
-  const active=[...selectedDivisions].filter(k=>ALL_DIVISIONS.includes(k)).sort();
-  $('#boardSubtitle').textContent=!active.length?'Elegí al menos una división':active.length<=3?active.map(k=>{const [y,c]=k.split('-');return `${y}.º ${c}.ª`}).join(' · '):`${active.length} divisiones visibles · ${activeYears.length} años`;
-  const yf=$('#yearFilters');
-  yf.replaceChildren(...[1,2,3,4].map(y=>{
-    const group=el('div','year-group'),head=el('div','year-group-head'),controls=el('div','division-options');
-    const keys=[`${y}-1`,`${y}-2`],allOn=keys.every(k=>selectedDivisions.has(k)),anyOn=keys.some(k=>selectedDivisions.has(k));
-    const yearButton=button('',`year-heading ${anyOn?'':'off'}`,()=>{
-      for(const k of keys){if(allOn)selectedDivisions.delete(k);else selectedDivisions.add(k);}
-      persistPrefs();render();
-    });
-    yearButton.setAttribute('aria-pressed',String(allOn));
-    yearButton.setAttribute('aria-label',`${allOn?'Ocultar':'Mostrar'} todas las divisiones de ${y}.º año`);
-    const dot=el('i','dot');dot.style.setProperty('--color',COLORS[y-1]);
-    yearButton.append(dot,document.createTextNode(`${y}.º año`));
-    head.append(yearButton);
-    for(let c=1;c<=2;c++){
-      const key=`${y}-${c}`,active=selectedDivisions.has(key),row=el('div','division-row');
-      const toggle=button(`${c}.ª división`,`division-toggle ${active?'active':''}`,()=>{
-        if(active)selectedDivisions.delete(key);else selectedDivisions.add(key);
-        persistPrefs();render();
-      });
-      toggle.style.setProperty('--color',COLORS[y-1]);
-      toggle.setAttribute('aria-pressed',String(active));
-      toggle.setAttribute('aria-label',`${active?'Ocultar':'Mostrar'} ${y}.º año, ${c}.ª división`);
-      const solo=button('Solo','division-solo',()=>{
-        selectedDivisions=new Set([key]);persistPrefs();render();
-      });
-      solo.title=`Mostrar únicamente ${y}.º año, ${c}.ª división`;
-      solo.setAttribute('aria-label',solo.title);
-      row.append(toggle,solo);controls.append(row);
-    }
-    group.append(head,controls);return group;
-  }));
-  $('#overlapBtn').classList.toggle('selected',onlyOverlap);$('#overlapBtn').setAttribute('aria-pressed',String(onlyOverlap));
-  $('#weekBtn').classList.toggle('selected',view==='week');$('#listBtn').classList.toggle('selected',view==='list');
-  $('#weekBtn').setAttribute('aria-pressed',String(view==='week'));$('#listBtn').setAttribute('aria-pressed',String(view==='list'));
-  $('#scrollView').classList.toggle('is-hidden',view!=='week');$('#listView').classList.toggle('is-hidden',view!=='list');
-  $('#legend').replaceChildren(...activeYears.map(y=>{let box=el('span');let dot=el('i','dot');dot.style.setProperty('--color',COLORS[y-1]);box.append(dot,document.createTextNode(y+'.º año'));return box}),el('span','','Borde destacado: coincidencias'));
-  if(view==='week')renderWeek(groups,overlapping);else renderList(groups,overlapping);
+ const data=shown(),groups=groupClasses(data),m=matches(),overlapping=new Set([...m].filter(([k,v])=>v.length>1).map(([k])=>k));
+ const selectedKeys=visibleDivisionKeys().filter(k=>selectedDivisions.has(k));
+ const activeYears=[1,2,3,4].filter(y=>selectedKeys.some(k=>Number(k.split('-')[1])===y));
+ $('#statYears').textContent=activeYears.length;
+ $('#statBlocks').textContent=(onlyOverlap?groups.filter(g=>groupOverlap(g,overlapping)):groups).length;
+ $('#statOverlap').textContent=[...overlapping].filter(k=>data.some(e=>`${e.day}-${e.slot}`===k)).length;
+ $('#boardTitle').textContent=view==='week'?'Semana académica':'Materias por día';
+ $('#boardSubtitle').textContent=!selectedKeys.length?'Elegí al menos una división':selectedKeys.length<=3?selectedKeys.map(k=>{
+  const [c,y,d]=k.split('-');return (careerFilter==='all'?CAREER_NAMES[c]+' · ':'')+`${y}.º ${d}.ª`;
+ }).join(' · '):`${selectedKeys.length} divisiones · ${activeYears.length} años · ${careerFilter==='all'?'Tres carreras':CAREER_NAMES[careerFilter]}`;
+ const careers=$('#careerFilters');
+ careers.replaceChildren(...[...CAREERS,{id:'all',label:'Todas'}].map(c=>{
+  const active=careerFilter===c.id,b=button(c.label,'career-choice '+(active?'selected':''),()=>{careerFilter=c.id;persistPrefs();render()});
+  b.setAttribute('aria-pressed',String(active));return b;
+ }));
+ const yf=$('#yearFilters');const visibleCareers=CAREERS.filter(c=>careerEnabled(c.id));
+ yf.replaceChildren(...[1,2,3,4].map(y=>{
+  const group=el('div','year-group'),head=el('div','year-group-head'),controls=el('div','division-options');
+  const list=visibleCareers.flatMap(c=>c.divisions.map(d=>({career:c,key:`${c.id}-${y}-${d}`,division:d})));
+  const keys=list.map(v=>v.key),allOn=keys.every(k=>selectedDivisions.has(k)),anyOn=keys.some(k=>selectedDivisions.has(k));
+  const yearButton=button('',`year-heading ${anyOn?'':'off'}`,()=>{
+   for(const k of keys){if(allOn)selectedDivisions.delete(k);else selectedDivisions.add(k)}
+   persistPrefs();render();
+  });
+  yearButton.setAttribute('aria-pressed',String(allOn));
+  yearButton.setAttribute('aria-label',`${allOn?'Ocultar':'Mostrar'} ${y}.º año`);
+  const dot=el('i','dot');dot.style.setProperty('--color',COLORS[y-1]);
+  yearButton.append(dot,document.createTextNode(`${y}.º año`));head.append(yearButton);
+  for(const item of list){
+   const key=item.key,active=selectedDivisions.has(key),row=el('div','division-row');
+   const careerPrefix=careerFilter==='all'?item.career.short+' · ':'';
+   const divisionText=item.career.id==='historia'?`${item.division}.ª división`:'División única';
+   const toggle=button(careerPrefix+divisionText,`division-toggle ${active?'active':''}`,()=>{
+    if(active)selectedDivisions.delete(key);else selectedDivisions.add(key);
+    persistPrefs();render();
+   });
+   toggle.style.setProperty('--color',COLORS[y-1]);toggle.setAttribute('aria-pressed',String(active));
+   toggle.setAttribute('aria-label',`${active?'Ocultar':'Mostrar'} ${item.career.label}, ${y}.º año, ${divisionText}`);
+   const solo=button('Solo','division-solo',()=>{selectedDivisions=new Set([key]);careerFilter=item.career.id;persistPrefs();render()});
+   solo.title=`Mostrar únicamente ${item.career.label}, ${y}.º año, ${divisionText}`;
+   solo.setAttribute('aria-label',solo.title);
+   row.append(toggle,solo);controls.append(row);
+  }
+  group.append(head,controls);return group;
+ }));
+ $('#overlapBtn').classList.toggle('selected',onlyOverlap);$('#overlapBtn').setAttribute('aria-pressed',String(onlyOverlap));
+ $('#weekBtn').classList.toggle('selected',view==='week');$('#listBtn').classList.toggle('selected',view==='list');
+ $('#weekBtn').setAttribute('aria-pressed',String(view==='week'));$('#listBtn').setAttribute('aria-pressed',String(view==='list'));
+ $('#scrollView').classList.toggle('is-hidden',view!=='week');$('#listView').classList.toggle('is-hidden',view!=='list');
+ $('#legend').replaceChildren(...activeYears.map(y=>{let box=el('span'),dot=el('i','dot');dot.style.setProperty('--color',COLORS[y-1]);box.append(dot,document.createTextNode(y+'.º año'));return box}),el('span','','Borde destacado: coincidencias'));
+ if(view==='week')renderWeek(groups,overlapping);else renderList(groups,overlapping);
 }
 
 function moduleLayout(day,module,groups,overlapping){
@@ -246,19 +253,29 @@ function syncDuration(){
   const start=Number($('#slot').value),full=$('#duration').querySelector('[value="2"]');
   full.disabled=start%2===1;if(full.disabled)$('#duration').value='1';
 }
+function setEditorCommissions(){
+ const single=$('#editCareer').value!=='historia',select=$('#com');
+ select.querySelector('option[value="2"]').disabled=single;
+ if(single)select.value='1';
+}
 function openEditor(g){
-  editing=g||null;
-  $('#dialogTitle').textContent=g?'Editar materia':'Nueva materia';
-  const firstDivision=[...selectedDivisions][0]||'1-1';
-  $('#name').value=g?.name||'';$('#year').value=g?.year||Number(firstDivision.split('-')[0]);
-  $('#com').value=g?.commission||Number(firstDivision.split('-')[1]);$('#day').value=g?.day||0;$('#slot').value=g?.slot||0;
-  $('#duration').value=g?String(g.members?.length||1):'2';syncDuration();
-  $('#deleteBtn').classList.toggle('is-hidden',!g);
-  $('#modal').classList.remove('is-hidden');setTimeout(()=>$('#name').focus(),0);
+ editing=g||null;
+ $('#dialogTitle').textContent=g?'Editar materia':'Nueva materia';
+ const chosen=visibleDivisionKeys().find(k=>selectedDivisions.has(k))||visibleDivisionKeys()[0]||'historia-1-1';
+ const [defaultCareer,defaultYear,defaultDivision]=chosen.split('-');
+ $('#name').value=g?.name||'';
+ $('#editCareer').value=g?careerOf(g):defaultCareer;
+ $('#year').value=g?.year||Number(defaultYear);
+ $('#com').value=g?.commission||Number(defaultDivision);
+ setEditorCommissions();
+ $('#day').value=g?.day||0;$('#slot').value=g?.slot||0;
+ $('#duration').value=g?String(g.members?.length||1):'2';syncDuration();
+ $('#deleteBtn').classList.toggle('is-hidden',!g);
+ $('#modal').classList.remove('is-hidden');setTimeout(()=>$('#name').focus(),0);
 }
 function closeEditor(){$('#modal').classList.add('is-hidden');editing=null;$('#addBtn').focus();}
 $('#slot').replaceChildren(...SLOTS.map(([a,b],i)=>{let op=el('option','',`${a}–${b}`);op.value=String(i);return op}));
-$('#slot').addEventListener('change',syncDuration);
+$('#slot').addEventListener('change',syncDuration);$('#editCareer').addEventListener('change',setEditorCommissions);
 $('#eventForm').addEventListener('submit',e=>{
   e.preventDefault();let name=$('#name').value.trim();if(!name)return;
   const selectedStart=Number($('#slot').value),duration=Number($('#duration').value);
@@ -267,7 +284,7 @@ $('#eventForm').addEventListener('submit',e=>{
   old.forEach(m=>{delete changes.upserts[m.id];if(!changes.deletions.includes(m.id))changes.deletions.push(m.id)});
   for(let i=0;i<duration;i++){
     const id=old[i]?.id||`manual-${Date.now()}-${Math.floor(Math.random()*100000)}-${i}`;
-    const entry={id,name,year:Number($('#year').value),commission:Number($('#com').value),day:Number($('#day').value),slot:selectedStart+i};
+    const entry={id,name,career:$('#editCareer').value,year:Number($('#year').value),commission:Number($('#com').value),day:Number($('#day').value),slot:selectedStart+i};
     changes.upserts[id]=entry;changes.deletions=changes.deletions.filter(x=>x!==id);
   }
   closeEditor();save();
@@ -278,6 +295,6 @@ $('#deleteBtn').addEventListener('click',()=>{
   for(const m of editing.members||[editing]){delete changes.upserts[m.id];if(!changes.deletions.includes(m.id))changes.deletions.push(m.id)}
   closeEditor();save();
 });
-$('#allDivisions').addEventListener('click',()=>{selectedDivisions=new Set(ALL_DIVISIONS);persistPrefs();render()});$('#noneDivisions').addEventListener('click',()=>{selectedDivisions=new Set();persistPrefs();render()});$('#cancelBtn').addEventListener('click',closeEditor);$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeEditor()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').classList.contains('is-hidden'))closeEditor()});$('#addBtn').addEventListener('click',()=>openEditor(null));$('#search').addEventListener('input',e=>{query=e.target.value.trim().toLocaleLowerCase('es');render()});$('#overlapBtn').addEventListener('click',()=>{onlyOverlap=!onlyOverlap;render()});$('#weekBtn').addEventListener('click',()=>{view='week';persistPrefs();render()});$('#listBtn').addEventListener('click',()=>{view='list';persistPrefs();render()});$('#resetBtn').addEventListener('click',()=>{selectedDivisions=new Set(ALL_DIVISIONS);query='';onlyOverlap=false;view='week';$('#search').value='';persistPrefs();render()});$('#themeBtn').addEventListener('click',()=>{let cur=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',cur==='dark'?'light':'dark')});$('#exportBtn').addEventListener('click',()=>{let blob=new Blob([JSON.stringify({fuente:'Historia 2026 · PSCS',fecha:'2026-10-19',materias:all()},null,2)],{type:'application/json;charset=utf-8'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='horarios-historia-2026.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)});render();})();
+$('#allDivisions').addEventListener('click',()=>{for(const k of visibleDivisionKeys())selectedDivisions.add(k);persistPrefs();render()});$('#noneDivisions').addEventListener('click',()=>{for(const k of visibleDivisionKeys())selectedDivisions.delete(k);persistPrefs();render()});$('#cancelBtn').addEventListener('click',closeEditor);$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeEditor()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').classList.contains('is-hidden'))closeEditor()});$('#addBtn').addEventListener('click',()=>openEditor(null));$('#search').addEventListener('input',e=>{query=e.target.value.trim().toLocaleLowerCase('es');render()});$('#overlapBtn').addEventListener('click',()=>{onlyOverlap=!onlyOverlap;render()});$('#weekBtn').addEventListener('click',()=>{view='week';persistPrefs();render()});$('#listBtn').addEventListener('click',()=>{view='list';persistPrefs();render()});$('#resetBtn').addEventListener('click',()=>{selectedDivisions=new Set(ALL_DIVISIONS);careerFilter='historia';query='';onlyOverlap=false;view='week';$('#search').value='';persistPrefs();render()});$('#themeBtn').addEventListener('click',()=>{let cur=document.documentElement.getAttribute('data-theme');document.documentElement.setAttribute('data-theme',cur==='dark'?'light':'dark')});$('#exportBtn').addEventListener('click',()=>{let blob=new Blob([JSON.stringify({fuente:'Historia 2026 · PSCS',fecha:'2026-10-19',materias:all()},null,2)],{type:'application/json;charset=utf-8'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='horarios-historia-2026.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)});render();})();
 </script>
 </body></html>
