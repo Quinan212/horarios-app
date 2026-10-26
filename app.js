@@ -7,7 +7,7 @@
   const NAMES = Object.fromEntries(CAREERS.map(c => [c.id,c.name]));
   const ALL = CAREERS.flatMap(c => [1,2,3,4].flatMap(year => c.divisions.map(d => `${c.id}-${year}-${d}`)));
   const COLORS = ['var(--y1)','var(--y2)','var(--y3)','var(--y4)'];
-  const mobile = matchMedia('(max-width:700px)'), compactEditor = matchMedia('(max-width:1040px)');
+  const mobile = matchMedia('(max-width:700px)');
   const mode = () => mobile.matches ? 'mobile' : 'desktop';
   let selected = new Set(['historia-1-1']), career = 'historia', query = '', onlyOverlap = false;
   let views = {desktop:'week',mobile:'day'}, selectedDay = Math.min(4,(new Date().getDay()+6)%7);
@@ -223,10 +223,10 @@
   }
   function syncCommission() { const single = $('#editCareer').value !== 'historia'; $('#com option[value="2"]').disabled = single; if (single) $('#com').value = '1'; }
   function presentEditor() {
-    const editor = $('#editor'); if (editor.open) editor.close();
-    document.body.classList.add('editor-open');
-    if (compactEditor.matches) { editor.showModal(); document.body.classList.add('modal-open'); }
-    else { editor.show(); document.body.classList.remove('modal-open'); }
+    const editor = $('#editor');
+    if (editor.open) return;
+    document.body.classList.add('modal-open');
+    editor.showModal();
   }
   function openEditor(group) {
     closeMenu(); editing = group || null; editorOrigin = group ? C.groupKey(group) : '';
@@ -239,7 +239,7 @@
     $('#saveError').hidden = true; $('#deleteBtn').hidden = !group; presentEditor(); render(); $('#name').focus({preventScroll:true});
   }
   function closeEditor() {
-    $('#editor').close(); document.body.classList.remove('editor-open','modal-open'); editing = null; render();
+    $('#editor').close(); document.body.classList.remove('modal-open'); editing = null; render();
     const origin = [...document.querySelectorAll('[data-event-key]')].find(b => b.dataset.eventKey === editorOrigin && b.getClientRects().length);
     (origin || $('#addBtn')).focus({preventScroll:true});
   }
@@ -279,7 +279,17 @@
   $('#addBtn').addEventListener('click',() => openEditor(null));
   ['cancelBtn','closeEditor'].forEach(id => $('#'+id).addEventListener('click',closeEditor));
   $('#editor').addEventListener('cancel',event => {event.preventDefault(); closeEditor();});
-  compactEditor.addEventListener('change',() => { if ($('#editor').open) { const id = document.activeElement.id; presentEditor(); document.getElementById(id)?.focus(); } });
+  let editorBackdropPress = false;
+  $('#editor').addEventListener('pointerdown',event => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    editorBackdropPress = event.target === event.currentTarget && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom);
+  });
+  $('#editor').addEventListener('click',event => {
+    const startedOutside = editorBackdropPress; editorBackdropPress = false;
+    if (!startedOutside || event.target !== event.currentTarget) return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) closeEditor();
+  });
   mobile.addEventListener('change',render);
   $('#careerSelect').addEventListener('change',event => setCareer(event.target.value));
   $('#panelCareerSelect').addEventListener('change',event => setCareer(event.target.value));
@@ -309,7 +319,6 @@
   document.addEventListener('keydown',event => {
     if (event.key !== 'Escape') return;
     if (!$('#moreMenu').hidden) {closeMenu(); $('#menuBtn').focus();}
-    else if ($('#editor').open && !$('#editor').matches(':modal')) closeEditor();
   });
   document.querySelectorAll('[data-theme-choice]').forEach(b => b.addEventListener('click',() => {
     theme = b.dataset.themeChoice; applyTheme();

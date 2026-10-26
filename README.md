@@ -10,7 +10,7 @@ Aplicación web estática para consultar y comparar las 16 divisiones de Histori
 - Resaltado de franjas donde coinciden varias materias seleccionadas.
 - Vistas Día, Semana y Lista; Semana es la vista inicial de escritorio y Día la de móvil. Cada tamaño recuerda la última vista elegida.
 - Agenda diaria con selector de lunes a viernes para móvil vertical, y lista agrupada por día.
-- Edición, adición y eliminación de materias con almacenamiento en el navegador. Editor lateral en escritorio y diálogo inferior en pantallas compactas.
+- Edición, adición y eliminación de materias con almacenamiento en el navegador. Panel flotante desde la derecha en escritorio y diálogo inferior en pantallas compactas, sin cambiar el ancho ni la posición del horario.
 - Deshacer el último cambio de la sesión, desde el aviso o el menú de opciones.
 - Exportación de horarios en JSON.
 - Apariencia del sistema, clara u oscura, diseño responsive, sin dependencias de ejecución externas.
@@ -44,7 +44,7 @@ Los cambios son locales al navegador y no se sincronizan entre dispositivos; la 
 
 ## Diseño
 
-El rediseño combina las propuestas elegidas: móvil diario de la opción 1, calendario de escritorio de la opción 2 y lista con inspector de la opción 3. Aplica criterios de las [Human Interface Guidelines de Apple](https://developer.apple.com/design/human-interface-guidelines/): jerarquía clara, controles consistentes, adaptación al espacio, acciones reversibles y accesibilidad. Es una interfaz web; no utiliza componentes nativos de Apple.
+El rediseño combina las propuestas elegidas: móvil diario de la opción 1, calendario de escritorio de la opción 2 y lista agrupada de la opción 3. El editor se abre como panel flotante sobre el horario, según el ajuste posterior solicitado. Aplica criterios de las [Human Interface Guidelines de Apple](https://developer.apple.com/design/human-interface-guidelines/): jerarquía clara, controles consistentes, adaptación al espacio, acciones reversibles y accesibilidad. Es una interfaz web; no utiliza componentes nativos de Apple.
 
 La tipografía usa las fuentes del sistema. Se conserva el icono original del proyecto. Los iconos adicionales son de [Phosphor Icons](https://github.com/phosphor-icons/core), con licencia MIT incluida en `assets/icons/LICENSE.txt`.
 

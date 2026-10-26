@@ -66,3 +66,19 @@ Sin hallazgos P0, P1 o P2 pendientes dentro del alcance comprobado. La agenda pe
 ## Límites de la verificación
 
 Pruebas realizadas en el navegador integrado basado en Chromium sobre Windows. No se verificaron un dispositivo físico, Safari, VoiceOver, teclado virtual ni una sesión real de lector de pantalla. La revisión no constituye certificación de accesibilidad. Los datos se almacenan por origen en el navegador; esta vista previa tiene sus propias preferencias locales.
+
+
+## Actualización: editor flotante sin modificar el horario
+
+final result: passed
+
+Esta revisión sustituye el comportamiento inicial de inspector no modal en una segunda columna. Según el ajuste solicitado, ahora el editor es un diálogo modal flotante: panel de 420 px desde la derecha en escritorio y hoja inferior en pantallas compactas. La grilla y la lista no cambian de tamaño al abrirlo.
+
+- En escritorio 1440 × 1024 se midieron antes y después de abrir el panel los mismos rectángulos del calendario y de la lista: ancho de contenido 1368,8 px, origen (28, 218), sin cambio de scroll. El editor tiene posición fija y pertenece a la capa modal del navegador.
+- Escape devuelve el foco a la clase seleccionada; Cancelar vuelve al botón Nueva materia. La cruz y el fondo exterior cierran el panel. El cierre exterior exige que tanto el inicio como el final del clic ocurran fuera, evitando cerrarlo al arrastrar desde el formulario.
+- Un borrador conserva su nombre al cambiar de escritorio a móvil y regresar; el diálogo no se destruye al cruzar el breakpoint.
+- En 390 × 844 y 320 × 812 no hay desbordamiento horizontal dentro del formulario, y Guardar cambios permanece visible. Cancelar el borrador deja 14 clases; no se guardaron datos de prueba.
+- La animación de entrada se desactiva con movimiento reducido. Se mantiene el mismo contenido del formulario, sus campos y acciones.
+- Sintaxis JavaScript y diferencias Git comprobadas. Consola sin errores ni advertencias durante estos recorridos.
+
+Evidencia de escritorio: `C:/Users/alan/Documents/ChatGPT/Codex local PC/work/horarios-apple-redesign/qa/editor-flotante-desktop.jpg`.
