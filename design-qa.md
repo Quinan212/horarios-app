@@ -82,3 +82,23 @@ Esta revisión sustituye el comportamiento inicial de inspector no modal en una 
 - Sintaxis JavaScript y diferencias Git comprobadas. Consola sin errores ni advertencias durante estos recorridos.
 
 Evidencia de escritorio: `C:/Users/alan/Documents/ChatGPT/Codex local PC/work/horarios-apple-redesign/qa/editor-flotante-desktop.jpg`.
+
+
+## Actualización: movimiento coordinado con la referencia de Trivia
+
+final result: passed
+
+Referencia analizada: `C:/Users/alan/Documents/ChatGPT/Codex local PC/work/trivia-motion-2026-10-26/ANALISIS.md`. Se trasladaron curvas y desfases a los controles web, conservando el panel flotante y la estructura del calendario.
+
+- Panel opaco: entrada de 480 ms y salida de 347 ms con `cubic-bezier(.645,.045,.355,1)`. El fondo es una capa independiente que interpola su opacidad; el backdrop nativo permanece transparente. El formulario entra después, con bloques de 320 ms y desfases de 45 ms. El cierre conserva su último fotograma hasta retirar el diálogo.
+- Durante una muestra de entrada clara, el fondo y la superficie fueron `rgb(255,255,255)`, la opacidad del panel fue 1 y la del oscurecimiento fue 0,460847, con el formulario todavía inerte. El rectángulo del horario fue idéntico antes y durante la entrada: origen (28,218), ancho 1368,8 y altura 673,6, scroll vertical 0.
+- En modo oscuro, después de recargar, el fondo fue `rgb(19,24,32)` y el panel `rgb(26,34,46)` desde el inicio de la apertura. La muestra intermedia mantuvo opacidad de panel 1 y oscurecimiento 0,460435. La apariencia guardada se aplica en el encabezado antes de cargar los estilos para evitar un primer cuadro con otra apariencia.
+- Cambio de tema de 500 ms: se observó un color intermedio `rgb(137,140,144)` durante el paso de claro a oscuro y el color final correcto tras recargar. El tema del sistema utiliza la misma transición cuando cambia su preferencia.
+- Selección de vistas y días: una sola pieza azul se desplaza en 347 ms. Los cambios de vista retiran primero el contenido anterior (200 ms) y muestran el nuevo (420 ms). Solicitudes rápidas se resuelven con la última selección, sin superponer textos. Lista → Día → Semana terminó en Semana, 14 clases y opacidad 1, sin estado ocupado residual.
+- Escape durante la entrada completó el cierre, ocultó el oscurecimiento, liberó el scroll y devolvió el foco a Nueva materia. Se verificaron también la cruz y Cancelar en el editor. Los filtros comparten la secuencia de entrada/salida y conservan sus controles.
+- En móvil se guardó una clase temporal: 15 clases después del cierre; Deshacer y recargar devolvieron 14 y eliminaron la clase de prueba. Sin datos temporales pendientes.
+- En 320 × 812, documento de 305 px sin desbordamiento; formulario con ancho y scroll interno de 303 px y Guardar visible. El borrador se conservó al pasar a escritorio de 1440 × 1024, donde el panel volvió a 420 px. Cancelar dejó 14 clases.
+- Ocho pruebas de reglas de horario aprobadas, sintaxis de ambos scripts y referencias locales verificadas. Consola de la app sin errores ni advertencias en los recorridos revisados.
+- CSS y JavaScript se publican con el mismo parámetro de versión para impedir mezclar recursos de entregas anteriores en la caché.
+
+Capturas: `C:/Users/alan/Documents/ChatGPT/Codex local PC/work/horarios-apple-redesign/qa/movimiento-trivia/panel-claro.jpg` y `panel-movil.jpg`. La revisión se hizo en Chromium integrado sobre Windows; movimiento reducido está implementado en CSS y JavaScript, sin una sesión emulada de esa preferencia en esta revisión.

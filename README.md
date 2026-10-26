@@ -34,7 +34,7 @@ node --test tests/schedule-core.test.cjs
 
 Las pruebas verifican los 402 registros, las 16 divisiones y las 242 clases agrupadas, continuidad dentro del módulo, separación de clases simultáneas, compatibilidad de cambios anteriores y búsqueda sin tildes. La revisión visual e interactiva se documenta en [design-qa.md](design-qa.md).
 
-`schedule-core.js` contiene las reglas de horarios; `app.js` administra filtros, vistas, edición y persistencia; `styles.css` define la presentación adaptable.
+`schedule-core.js` contiene las reglas de horarios; `app.js` administra filtros, vistas, edición y persistencia; `styles.css` define la presentación adaptable. `motion.js` y `motion.css` coordinan las transiciones, los estados de los diálogos y el movimiento de la selección.
 
 ## Datos y limitaciones
 
@@ -65,3 +65,8 @@ Los registros se mantienen en `data.js` (Historia) y `career-data.js` (Geografí
 La opción **Todas** permite comparar entre carreras; las tarjetas conservan el año mediante colores. El editor ahora incluye el campo Carrera. Los datos iniciales de Historia y las personalizaciones locales anteriores se conservan.
 
 Fuentes: [Historia 2026](https://docs.google.com/spreadsheets/d/1UEIhqxZstwIM2pKali8YwkaY3zRbso1X/edit), [Geografía 2026](https://docs.google.com/spreadsheets/d/1n6jXd48oKlDClb5Rs788ctV4YAWJF1XI/edit), [Ciencia Política 2026](https://docs.google.com/spreadsheets/d/1fIeAO6PqOSqQ89vsCuXH7aCPZ0EkKAes/edit).
+
+
+## Movimiento
+
+Las transiciones toman como referencia la coreografía de Trivia: presión de 80 ms y devolución de 180 ms, selección continua de 347 ms, entrada del panel de 480 ms, salida de 347 ms y color de 500 ms. El panel conserva su superficie opaca; el fondo se oscurece por separado y el formulario entra con desfases de 45 ms. La página anterior se retira antes de mostrar la nueva. Escape y el cierre exterior completan la salida antes de devolver el foco. La preferencia de movimiento reducido aplica cambios inmediatos.

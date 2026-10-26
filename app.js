@@ -1,13 +1,13 @@
 'use strict';
 (() => {
   const $ = selector => document.querySelector(selector);
-  const C = ScheduleCore;
+  const C = ScheduleCore, M = ScheduleMotion;
   const STORAGE = 'historia-horarios-v1', PREFS = 'horarios-preferencias-v3', THEME = 'horarios-apariencia-v1';
   const CAREERS = [{id:'historia',name:'Historia',divisions:[1,2]}, {id:'geografia',name:'Geografía',divisions:[1]}, {id:'politica',name:'Ciencia Política',divisions:[1]}];
   const NAMES = Object.fromEntries(CAREERS.map(c => [c.id,c.name]));
   const ALL = CAREERS.flatMap(c => [1,2,3,4].flatMap(year => c.divisions.map(d => `${c.id}-${year}-${d}`)));
   const COLORS = ['var(--y1)','var(--y2)','var(--y3)','var(--y4)'];
-  const mobile = matchMedia('(max-width:700px)');
+  const mobile = matchMedia('(max-width:700px)'), systemTheme = matchMedia('(prefers-color-scheme:dark)');
   const mode = () => mobile.matches ? 'mobile' : 'desktop';
   let selected = new Set(['historia-1-1']), career = 'historia', query = '', onlyOverlap = false;
   let views = {desktop:'week',mobile:'day'}, selectedDay = Math.min(4,(new Date().getDay()+6)%7);
@@ -64,14 +64,23 @@
     catch { notify('La selección funciona, pero este navegador no pudo recordarla.'); }
   }
   function applyTheme() {
-    if (theme === 'system') document.documentElement.removeAttribute('data-theme');
-    else document.documentElement.dataset.theme = theme;
+    document.documentElement.dataset.theme = theme === 'system' ? (systemTheme.matches ? 'dark' : 'light') : theme;
     document.querySelectorAll('[data-theme-choice]').forEach(b => b.setAttribute('aria-pressed',String(b.dataset.themeChoice === theme)));
   }
+  function changePresentation(update) {
+    update(); persistPrefs();
+    document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed',String(b.dataset.view === views[mode()])));
+    [...$('#dayPicker').children].forEach((b,index) => b.setAttribute('aria-pressed',String(index === selectedDay)));
+    M.indicator($('.view-switch')); M.indicator($('#dayPicker'));
+    return M.swap($('#workspace'),render);
+  }
   function setCareer(value) {
-    career = value;
-    if (career !== 'all' && !selectedKeys().length) selected.add(`${career}-1-1`);
-    persistPrefs(); render();
+    const update = () => {
+      career = value;
+      if (career !== 'all' && !selectedKeys().length) selected.add(`${career}-1-1`);
+    };
+    if ($('#filtersDialog').open) {update(); persistPrefs(); render();}
+    else changePresentation(update);
   }
   function overlapsFor(entries) {
     const counts = new Map();
@@ -177,6 +186,7 @@
     if (activeId) document.getElementById(activeId)?.focus({preventScroll:true});
   }
   function render() {
+    const weekScroll = {left:$('#weekView').scrollLeft,top:$('#weekView').scrollTop};
     const visible = all().filter(isVisible), overlapping = overlapsFor(visible), data = visible.filter(entry => C.fold(entry.name).includes(query));
     let groups = C.groupClasses(data);
     if (onlyOverlap) groups = groups.filter(group => C.overlaps(group,overlapping));
@@ -191,7 +201,7 @@
     document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-pressed',String(b.dataset.view === view)));
     $('#dayPicker').hidden = view !== 'day';
     $('#dayPicker').replaceChildren(...DAYS.map((day,index) => {
-      const item = button(day[0],'',() => { selectedDay = index; persistPrefs(); render(); $('#dayPicker button[aria-pressed="true"]').focus({preventScroll:true}); });
+      const item = button(day[0],'',() => changePresentation(() => {selectedDay = index;}).then(() => $('#dayPicker button[aria-pressed="true"]')?.focus({preventScroll:true})));
       item.setAttribute('aria-label',day); item.setAttribute('aria-pressed',String(selectedDay === index)); return item;
     }));
     $('#weekView').hidden = view !== 'week' || !groups.length; $('#dayView').hidden = view !== 'day' || !groups.length;
@@ -207,13 +217,15 @@
     }
     else if (view === 'day') renderDay(groups,overlapping);
     else renderList(groups,overlapping);
+    $('#weekView').scrollLeft = weekScroll.left; $('#weekView').scrollTop = weekScroll.top;
+    M.indicator($('.view-switch')); M.indicator($('#dayPicker'));
     if ($('#filtersDialog').open) renderFilters();
     clearTimeout(announceTimer); announceTimer = setTimeout(() => { $('#liveSummary').textContent = `${$('#selectionSummary').textContent}. ${$('#classCount').textContent}. Vista ${view === 'day' ? 'Día' : view === 'week' ? 'Semana' : 'Lista'}.`; },250);
   }
 
-  function showFilters() { closeMenu(); renderFilters(); $('#filtersDialog').showModal(); document.body.classList.add('modal-open'); }
-  function closeFilters() { $('#filtersDialog').close(); document.body.classList.remove('modal-open'); $('#filtersBtn').focus(); }
-  function closeMenu() { $('#moreMenu').hidden = true; $('#menuBtn').setAttribute('aria-expanded','false'); }
+  function showFilters() { closeMenu(); renderFilters(); document.body.classList.add('modal-open'); M.openDialog($('#filtersDialog')); }
+  function closeFilters() { return M.closeDialog($('#filtersDialog'),() => {document.body.classList.remove('modal-open'); $('#filtersBtn').focus({preventScroll:true});}); }
+  function closeMenu() { M.popup($('#moreMenu'),false); $('#menuBtn').setAttribute('aria-expanded','false'); }
   function syncDuration() {
     const start = Number($('#slot').value), full = $('#duration option[value="2"]'); full.disabled = start%2 === 1;
     if (full.disabled) $('#duration').value = '1';
@@ -223,10 +235,11 @@
   }
   function syncCommission() { const single = $('#editCareer').value !== 'historia'; $('#com option[value="2"]').disabled = single; if (single) $('#com').value = '1'; }
   function presentEditor() {
-    const editor = $('#editor');
-    if (editor.open) return;
     document.body.classList.add('modal-open');
-    editor.showModal();
+    return M.openDialog($('#editor'));
+  }
+  function markEditing() {
+    document.querySelectorAll('[data-event-key]').forEach(element => element.classList.toggle('selected',!!editing && element.dataset.eventKey === C.groupKey(editing)));
   }
   function openEditor(group) {
     closeMenu(); editing = group || null; editorOrigin = group ? C.groupKey(group) : '';
@@ -236,17 +249,19 @@
     $('#year').value = group?.year || year; $('#com').value = group?.commission || division;
     $('#day').value = group?.day ?? selectedDay; $('#slot').value = group?.slot ?? 0;
     $('#duration').value = group ? String(group.members.length) : '2'; syncCommission(); syncDuration();
-    $('#saveError').hidden = true; $('#deleteBtn').hidden = !group; presentEditor(); render(); $('#name').focus({preventScroll:true});
+    $('#saveError').hidden = true; $('#deleteBtn').hidden = !group; markEditing(); presentEditor();
   }
   function closeEditor() {
-    $('#editor').close(); document.body.classList.remove('modal-open'); editing = null; render();
-    const origin = [...document.querySelectorAll('[data-event-key]')].find(b => b.dataset.eventKey === editorOrigin && b.getClientRects().length);
-    (origin || $('#addBtn')).focus({preventScroll:true});
+    return M.closeDialog($('#editor'),() => {
+      document.body.classList.remove('modal-open'); editing = null; render();
+      const origin = [...document.querySelectorAll('[data-event-key]')].find(b => b.dataset.eventKey === editorOrigin && b.getClientRects().length);
+      (origin || $('#addBtn')).focus({preventScroll:true});
+    });
   }
   function commit(next, message) {
     try { localStorage.setItem(STORAGE,JSON.stringify(next)); }
     catch { $('#saveError').textContent = 'No se pudo guardar en este navegador. Tu formulario sigue abierto; intentá nuevamente.'; $('#saveError').hidden = false; return false; }
-    undoSnapshot = structuredClone(changes); changes = next; closeEditor(); notify(message,true); return true;
+    undoSnapshot = structuredClone(changes); changes = next; closeEditor().then(() => notify(message,true)); return true;
   }
   function undo() {
     if (!undoSnapshot) return;
@@ -298,7 +313,7 @@
   $('#filtersDialog').addEventListener('cancel',event => {event.preventDefault(); closeFilters();});
   $('#allDivisions').addEventListener('click',() => { visibleKeys().forEach(key => selected.add(key)); persistPrefs(); render(); });
   $('#noneDivisions').addEventListener('click',() => { visibleKeys().forEach(key => selected.delete(key)); persistPrefs(); render(); });
-  document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click',() => {views[mode()] = b.dataset.view; persistPrefs(); render();}));
+  document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click',() => {if (views[mode()] !== b.dataset.view) changePresentation(() => {views[mode()] = b.dataset.view;});}));
   $('#search').addEventListener('input',event => {query = C.fold(event.target.value.trim()); render();});
   ['overlapToggle','overlapMenu'].forEach(id => $('#'+id).addEventListener('change',event => {onlyOverlap = event.target.checked; render();}));
   $('#emptyAction').addEventListener('click',() => {
@@ -312,7 +327,7 @@
     if (expanded) $('#search').focus();
   });
   $('#menuBtn').addEventListener('click',() => {
-    const open = $('#moreMenu').hidden; $('#moreMenu').hidden = !open; $('#menuBtn').setAttribute('aria-expanded',String(open));
+    const open = $('#menuBtn').getAttribute('aria-expanded') !== 'true'; M.popup($('#moreMenu'),open); $('#menuBtn').setAttribute('aria-expanded',String(open));
     if (open) $('#exportBtn').focus();
   });
   document.addEventListener('click',event => {if (!$('#moreMenu').contains(event.target) && !$('#menuBtn').contains(event.target)) closeMenu();});
@@ -321,7 +336,7 @@
     if (!$('#moreMenu').hidden) {closeMenu(); $('#menuBtn').focus();}
   });
   document.querySelectorAll('[data-theme-choice]').forEach(b => b.addEventListener('click',() => {
-    theme = b.dataset.themeChoice; applyTheme();
+    theme = b.dataset.themeChoice; M.changeTheme(applyTheme);
     try { localStorage.setItem(THEME,JSON.stringify(theme)); } catch {notify('La apariencia se aplicó, pero no se pudo recordar.');}
   }));
   $('#resetBtn').addEventListener('click',() => {selected = new Set(['historia-1-1']); career = 'historia'; query = ''; onlyOverlap = false; views = {desktop:'week',mobile:'day'}; selectedDay = 0; $('#search').value = ''; closeMenu(); persistPrefs(); render();});
@@ -331,5 +346,6 @@
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'horarios-pscs-2026.json'; link.click();
     setTimeout(() => URL.revokeObjectURL(link.href),2000); closeMenu();
   });
+  systemTheme.addEventListener('change',() => {if (theme === 'system') M.changeTheme(applyTheme);});
   applyTheme(); render();
 })();

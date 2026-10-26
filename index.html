@@ -3,10 +3,12 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff"><meta name="description" content="Horarios 2026 de Historia, Geografía y Ciencia Política del PSCS de Concordia.">
-<title>Horarios · PSCS 2026</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css">
-<script src="data.js" defer></script><script src="career-data.js" defer></script><script src="schedule-core.js" defer></script><script src="app.js" defer></script>
+<script>try{const t=JSON.parse(localStorage.getItem('horarios-apariencia-v1'));if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch{}</script>
+<title>Horarios · PSCS 2026</title><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=20261026-motion1"><link rel="stylesheet" href="motion.css?v=20261026-motion1">
+<script src="data.js" defer></script><script src="career-data.js" defer></script><script src="schedule-core.js" defer></script><script src="motion.js?v=20261026-motion1" defer></script><script src="app.js?v=20261026-motion1" defer></script>
 </head>
 <body>
+<div id="modalScrim" class="modal-scrim" aria-hidden="true" hidden></div>
 <a class="skip-link" href="#workspace">Ir al horario</a>
 <div class="app">
 <header class="topbar">
@@ -42,7 +44,7 @@
   <section id="dayView" class="day-view" aria-label="Clases del día" hidden></section>
   <section id="listView" class="list-view" aria-label="Materias por día" hidden></section>
  </main>
- <dialog id="editor" class="editor" aria-labelledby="dialogTitle">
+ <dialog tabindex="-1" id="editor" class="editor" aria-labelledby="dialogTitle">
   <div class="dialog-heading"><h2 id="dialogTitle">Editar materia</h2><button id="closeEditor" type="button" class="icon-button button quiet" aria-label="Cerrar editor"><img class="icon" src="assets/icons/x.svg" alt=""></button></div>
   <form id="eventForm">
    <label for="name">Materia</label><input id="name" required maxlength="110" autocomplete="off" placeholder="Nombre de la materia">
@@ -58,7 +60,7 @@
 </div>
 <footer class="footer"><span><img class="icon" src="assets/icons/info.svg" alt="">Cambios en este navegador</span><span>Planillas 2026 · Historia, Geografía y Ciencia Política</span><p id="weekHint" hidden>Desplazá la grilla para comparar todos los días.</p></footer>
 </div>
-<dialog id="filtersDialog" class="filters-dialog" aria-labelledby="filtersTitle">
+<dialog tabindex="-1" id="filtersDialog" class="filters-dialog" aria-labelledby="filtersTitle">
  <div class="dialog-heading"><div><h2 id="filtersTitle">Elegir divisiones</h2><p>Combiná años y carreras para comparar sus horarios.</p></div><button id="closeFilters" class="button icon-button quiet" type="button" aria-label="Cerrar filtros"><img class="icon" src="assets/icons/x.svg" alt=""></button></div>
  <label class="field-label" for="panelCareerSelect">Carrera</label><select id="panelCareerSelect"><option value="historia">Historia</option><option value="geografia">Geografía</option><option value="politica">Ciencia Política</option><option value="all">Todas las carreras</option></select>
  <div id="divisionOptions" class="division-options"></div>

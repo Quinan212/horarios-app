@@ -1,0 +1,23 @@
+:root{--motion-curve:cubic-bezier(.645,.045,.355,1);--motion-out:cubic-bezier(.215,.61,.355,1)}
+button{transition:scale 180ms var(--motion-out)}
+button:active{filter:none}
+button.is-pressed{scale:.975;transition-duration:80ms}
+.modal-scrim{position:fixed;inset:0;z-index:40;background:rgb(16 27 48 / .4);opacity:0;pointer-events:none}
+dialog::backdrop{background:transparent}
+.editor[open],.filters-dialog[open]{animation:none;translate:0 0;will-change:translate}
+.editor,.filters-dialog{outline:none}
+.more-menu{transform-origin:top right}
+.view-switch,.day-picker{position:relative;isolation:isolate}
+.view-switch::before,.day-picker::before{content:"";position:absolute;z-index:-1;left:0;width:var(--indicator-w,0px);translate:var(--indicator-x,0px) 0;background:#0969f0;transition:translate 347ms var(--motion-curve),width 347ms var(--motion-curve);pointer-events:none}
+.view-switch::before{top:3px;bottom:3px;border-radius:7px;box-shadow:0 1px 3px #0969f029}
+.day-picker::before{top:0;height:44px;border-radius:50%}
+.view-switch:not(.indicator-ready)::before,.day-picker:not(.indicator-ready)::before{visibility:hidden}
+.view-switch button[aria-pressed=true],.day-picker button[aria-pressed=true]{background:transparent;box-shadow:none;color:#fff}
+.day-picker button{background:transparent}
+.day-picker button:not([aria-pressed=true]){background:transparent}
+.day-picker::after{content:"";position:absolute;z-index:-2;left:0;top:0;width:var(--indicator-w,44px);height:44px;border-radius:50%;box-shadow:var(--day-spots);pointer-events:none}
+.theme-transition .day-picker::after{transition:box-shadow 500ms var(--motion-curve)}
+.view-switch button,.day-picker button{transition:scale 180ms var(--motion-out),color 347ms var(--motion-curve)}
+.view-switch button.is-pressed,.day-picker button.is-pressed{transition-duration:80ms,347ms}
+.theme-transition,.theme-transition *{transition:background-color 500ms var(--motion-curve),color 500ms var(--motion-curve),border-color 500ms var(--motion-curve),box-shadow 500ms var(--motion-curve),filter 500ms var(--motion-curve),scale 180ms var(--motion-out)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
